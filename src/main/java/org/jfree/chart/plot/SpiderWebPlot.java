@@ -93,6 +93,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -107,13 +108,13 @@ import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.chart.urls.CategoryURLGenerator;
 import org.jfree.chart.util.ObjectUtils;
-import org.jfree.chart.util.PaintList;
+//import org.jfree.chart.util.PaintList;
 import org.jfree.chart.util.PaintUtils;
 import org.jfree.chart.util.Args;
 import org.jfree.chart.util.Rotation;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
-import org.jfree.chart.util.StrokeList;
+//import org.jfree.chart.util.StrokeList;
 import org.jfree.chart.util.TableOrder;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.general.DatasetChangeEvent;
@@ -221,7 +222,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
     private transient Paint seriesPaint;
 
     /** The series paint list. */
-    private PaintList seriesPaintList;
+    private List<Paint> seriesPaintList;
 
     /** The base series paint (fallback). */
     private transient Paint baseSeriesPaint;
@@ -230,7 +231,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
     private transient Paint seriesOutlinePaint;
 
     /** The series outline paint list. */
-    private PaintList seriesOutlinePaintList;
+    private List<Paint> seriesOutlinePaintList;
 
     /** The base series outline paint (fallback). */
     private transient Paint baseSeriesOutlinePaint;
@@ -239,7 +240,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
     private transient Stroke seriesOutlineStroke;
 
     /** The series outline stroke list. */
-    private StrokeList seriesOutlineStrokeList;
+    private List<Stroke> seriesOutlineStrokeList;
 
     /** The base series outline stroke (fallback). */
     private transient Stroke baseSeriesOutlineStroke;
@@ -306,15 +307,15 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         this.maxValue = DEFAULT_MAX_VALUE;
 
         this.seriesPaint = null;
-        this.seriesPaintList = new PaintList();
+        this.seriesPaintList = new ArrayList<>();
         this.baseSeriesPaint = null;
 
         this.seriesOutlinePaint = null;
-        this.seriesOutlinePaintList = new PaintList();
+        this.seriesOutlinePaintList = new ArrayList<>();
         this.baseSeriesOutlinePaint = DEFAULT_OUTLINE_PAINT;
 
         this.seriesOutlineStroke = null;
-        this.seriesOutlineStrokeList = new StrokeList();
+        this.seriesOutlineStrokeList = new ArrayList<>();
         this.baseSeriesOutlineStroke = DEFAULT_OUTLINE_STROKE;
 
         this.labelFont = DEFAULT_LABEL_FONT;
@@ -685,12 +686,12 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         }
 
         // otherwise look up the paint list
-        Paint result = this.seriesPaintList.getPaint(series);
+        Paint result = this.seriesPaintList.get(series);
         if (result == null) {
             DrawingSupplier supplier = getDrawingSupplier();
             if (supplier != null) {
                 Paint p = supplier.getNextPaint();
-                this.seriesPaintList.setPaint(series, p);
+                this.seriesPaintList.set(series, p);
                 result = p;
             }
             else {
@@ -711,7 +712,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #getSeriesPaint(int)
      */
     public void setSeriesPaint(int series, Paint paint) {
-        this.seriesPaintList.setPaint(series, paint);
+        this.seriesPaintList.set(series, paint);
         fireChangeEvent();
     }
 
@@ -776,7 +777,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
             return this.seriesOutlinePaint;
         }
         // otherwise look up the paint list
-        Paint result = this.seriesOutlinePaintList.getPaint(series);
+        Paint result = this.seriesOutlinePaintList.get(series);
         if (result == null) {
             result = this.baseSeriesOutlinePaint;
         }
@@ -791,7 +792,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @param paint  the paint ({@code null} permitted).
      */
     public void setSeriesOutlinePaint(int series, Paint paint) {
-        this.seriesOutlinePaintList.setPaint(series, paint);
+        this.seriesOutlinePaintList.set(series, paint);
         fireChangeEvent();
     }
 
@@ -854,7 +855,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         }
 
         // otherwise look up the paint list
-        Stroke result = this.seriesOutlineStrokeList.getStroke(series);
+        Stroke result = this.seriesOutlineStrokeList.get(series);
         if (result == null) {
             result = this.baseSeriesOutlineStroke;
         }
@@ -870,7 +871,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @param stroke  the stroke ({@code null} permitted).
      */
     public void setSeriesOutlineStroke(int series, Stroke stroke) {
-        this.seriesOutlineStrokeList.setStroke(series, stroke);
+        this.seriesOutlineStrokeList.set(series, stroke);
         fireChangeEvent();
     }
 
@@ -1589,11 +1590,11 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
     public Object clone() throws CloneNotSupportedException {
         SpiderWebPlot clone = (SpiderWebPlot) super.clone();
         clone.legendItemShape = ShapeUtils.clone(this.legendItemShape);
-        clone.seriesPaintList = (PaintList) this.seriesPaintList.clone();
+        clone.seriesPaintList = new ArrayList<>(this.seriesPaintList);
         clone.seriesOutlinePaintList
-                = (PaintList) this.seriesOutlinePaintList.clone();
+                = new ArrayList<>(this.seriesOutlinePaintList);
         clone.seriesOutlineStrokeList
-                = (StrokeList) this.seriesOutlineStrokeList.clone();
+                = new ArrayList<>(this.seriesOutlineStrokeList);
         return clone;
     }
 

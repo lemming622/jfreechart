@@ -60,6 +60,8 @@ import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
@@ -69,7 +71,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.ui.GradientPaintTransformer;
 import org.jfree.chart.ui.RectangleEdge;
-import org.jfree.chart.util.ObjectList;
+//import org.jfree.chart.util.ObjectList;
 import org.jfree.data.category.CategoryDataset;
 
 /**
@@ -87,14 +89,14 @@ public class LayeredBarRenderer extends BarRenderer implements Serializable {
     private static final long serialVersionUID = -8716572894780469487L;
 
     /** A list of the width of each series bar. */
-    protected ObjectList seriesBarWidthList;
+    protected List<Double> seriesBarWidthList;
 
     /**
      * Default constructor.
      */
     public LayeredBarRenderer() {
         super();
-        this.seriesBarWidthList = new ObjectList();
+        this.seriesBarWidthList = new ArrayList<>();
     }
 
     /**
@@ -122,7 +124,7 @@ public class LayeredBarRenderer extends BarRenderer implements Serializable {
      *               the maximum).
      */
     public void setSeriesBarWidth(int series, double width) {
-        this.seriesBarWidthList.set(series, new Double(width));
+        this.seriesBarWidthList.set(series, width);
     }
 
     /**

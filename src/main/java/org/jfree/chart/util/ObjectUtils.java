@@ -28,9 +28,11 @@
 
 package org.jfree.chart.util;
 
+import java.awt.Paint;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -58,10 +60,44 @@ public final class ObjectUtils {
         if (o1 == o2) {
             return true;
         }
+
+        //check to see if the objects are arrayLists
+        if ((o1 instanceof ArrayList) && (o2 instanceof ArrayList)){
+            try{
+                //cast to object lists since it is unknow what type is being used
+                ArrayList<Object> o1Cast = (ArrayList<Object>)o1;
+                ArrayList<Object> o2Cast = (ArrayList<Object>)o2;
+                
+                //check for Paint
+                if(o1Cast.get(0).getClass().equals(o2Cast.get(0).getClass()) &&
+                   o1Cast.get(0) instanceof Paint){
+                    if(o1Cast.size() == o2Cast.size()){
+                        for (int i = 0; i < o1Cast.size(); i++) {
+                            if(!PaintUtils.equalObject(o1Cast.get(i), 
+                                                       o2Cast.get(i))){
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    else{
+                        return false;
+                    }
+                }
+                //if not a paint let arraylist handle the equals
+                else{
+                    return o1.equals(o2);
+                }
+            }
+            catch(Exception e){
+                
+            }
+        }
+        
         if (o1 != null) {
             return o1.equals(o2);
         }
-        else {
+        else{
             return false;
         }
     }

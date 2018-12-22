@@ -25,10 +25,12 @@
  * Other names may be trademarks of their respective owners.]
  *
  */
-
 package org.jfree.chart.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Utility methods for working with arrays.
@@ -44,7 +46,7 @@ public class ArrayUtils {
     /**
      * Clones a two dimensional array of floats.
      *
-     * @param array  the array.
+     * @param array the array.
      *
      * @return A clone of the array.
      */
@@ -68,17 +70,17 @@ public class ArrayUtils {
     }
 
     /**
-     * Returns {@code true} if all the references in {@code array1}
-     * are equal to all the references in {@code array2} (two
-     * {@code null} references are considered equal for this test).
+     * Returns {@code true} if all the references in {@code array1} are equal to
+     * all the references in {@code array2} (two {@code null} references are
+     * considered equal for this test).
      *
-     * @param array1  the first array ({@code null} permitted).
-     * @param array2  the second array ({@code null} permitted).
+     * @param array1 the first array ({@code null} permitted).
+     * @param array2 the second array ({@code null} permitted).
      *
      * @return A boolean.
      */
-    public static boolean equalReferencesInArrays(Object[] array1, 
-            Object[] array2) {
+    public static boolean equalReferencesInArrays(Object[] array1,
+                                                  Object[] array2) {
         if (array1 == null) {
             return (array2 == null);
         }
@@ -109,8 +111,8 @@ public class ArrayUtils {
     /**
      * Tests two float arrays for equality.
      *
-     * @param array1  the first array ({@code null} permitted).
-     * @param array2  the second arrray ({@code null} permitted).
+     * @param array1 the first array ({@code null} permitted).
+     * @param array2 the second arrray ({@code null} permitted).
      *
      * @return A boolean.
      */
@@ -136,10 +138,10 @@ public class ArrayUtils {
     }
 
     /**
-     * Returns {@code true} if any two items in the array are equal to
-     * one another.  Any {@code null} values in the array are ignored.
+     * Returns {@code true} if any two items in the array are equal to one
+     * another. Any {@code null} values in the array are ignored.
      *
-     * @param array  the array to check.
+     * @param array the array to check.
      *
      * @return A boolean.
      */
@@ -161,38 +163,58 @@ public class ArrayUtils {
     /**
      * Compares the initial elements of two arrays.
      *
-     * @param a1  array 1.
-     * @param a2  array 2.
+     * @param a1 array 1.
+     * @param a2 array 2.
      *
      * @return An integer showing the relative ordering.
      */
-    public static int compareVersionArrays (Comparable[] a1, Comparable[] a2)
-    {
-      int length = Math.min (a1.length, a2.length);
-      for (int i = 0; i < length; i++)
-      {
-        Comparable o1 = a1[i];
-        Comparable o2 = a2[i];
-        if (o1 == null && o2 == null)
-        {
-          // cannot decide ..
-          continue;
+    public static int compareVersionArrays(Comparable[] a1, Comparable[] a2) {
+        int length = Math.min(a1.length, a2.length);
+        for (int i = 0; i < length; i++) {
+            Comparable o1 = a1[i];
+            Comparable o2 = a2[i];
+            if (o1 == null && o2 == null) {
+                // cannot decide ..
+                continue;
+            }
+            if (o1 == null) {
+                return 1;
+            }
+            if (o2 == null) {
+                return -1;
+            }
+            int retval = o1.compareTo(o2);
+            if (retval != 0) {
+                return retval;
+            }
         }
-        if (o1 == null)
-        {
-          return 1;
-        }
-        if (o2 == null)
-        {
-           return -1;
-        }
-        int retval = o1.compareTo(o2);
-        if (retval != 0)
-        {
-          return retval;
-        }
-      }
-      return 0;
+        return 0;
     }
 
+    /**
+     * Check to see if a list is empty or undersized for the data trying to be
+     * accessed in it. If undersized then the list will be expanded to handle
+     * the new index.
+     *
+     * @param list List to check
+     * @param index Index to be checked against
+     */
+    public static void checkArraySize(List list, int index) {
+        if (index >= 0) {
+            if ((list.isEmpty())
+                || (index >= list.size())) {
+                list.addAll(
+                        new ArrayList<>(
+                                Collections.nCopies(
+                                    index - list.size() + 1,
+                                    null
+                                )
+                        )
+                );
+            }
+        }
+        else {
+            throw new IndexOutOfBoundsException();
+        }
+    }
 }

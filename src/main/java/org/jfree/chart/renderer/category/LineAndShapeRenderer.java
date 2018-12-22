@@ -101,6 +101,8 @@ import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.axis.CategoryAxis;
@@ -109,7 +111,7 @@ import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.util.BooleanList;
+//import org.jfree.chart.util.BooleanList;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.ShapeUtils;
@@ -134,7 +136,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * A table of flags that control (per series) whether or not lines are
      * visible.
      */
-    private BooleanList seriesLinesVisible;
+    private List<Boolean> seriesLinesVisible;
 
     /**
      * A flag indicating whether or not lines are drawn between non-null
@@ -146,7 +148,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * A table of flags that control (per series) whether or not shapes are
      * visible.
      */
-    private BooleanList seriesShapesVisible;
+    private List<Boolean> seriesShapesVisible;
 
     /** The default value returned by the getShapeVisible() method. */
     private boolean defaultShapesVisible;
@@ -155,7 +157,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * A table of flags that control (per series) whether or not shapes are
      * filled.
      */
-    private BooleanList seriesShapesFilled;
+    private List<Boolean> seriesShapesFilled;
 
     /** The default value returned by the getShapeFilled() method. */
     private boolean defaultShapesFilled;
@@ -206,11 +208,11 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      */
     public LineAndShapeRenderer(boolean lines, boolean shapes) {
         super();
-        this.seriesLinesVisible = new BooleanList();
+        this.seriesLinesVisible = new ArrayList<>();
         this.defaultLinesVisible = lines;
-        this.seriesShapesVisible = new BooleanList();
+        this.seriesShapesVisible = new ArrayList<>();
         this.defaultShapesVisible = shapes;
-        this.seriesShapesFilled = new BooleanList();
+        this.seriesShapesFilled = new ArrayList<>();
         this.defaultShapesFilled = true;
         this.useFillPaint = false;
         this.drawOutlines = true;
@@ -249,7 +251,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #setSeriesLinesVisible(int, Boolean)
      */
     public Boolean getSeriesLinesVisible(int series) {
-        return this.seriesLinesVisible.getBoolean(series);
+        return this.seriesLinesVisible.get(series);
     }
 
     /**
@@ -262,7 +264,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #getSeriesLinesVisible(int)
      */
     public void setSeriesLinesVisible(int series, Boolean flag) {
-        this.seriesLinesVisible.setBoolean(series, flag);
+        this.seriesLinesVisible.set(series, flag);
         fireChangeEvent();
     }
 
@@ -333,7 +335,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #setSeriesShapesVisible(int, Boolean)
      */
     public Boolean getSeriesShapesVisible(int series) {
-        return this.seriesShapesVisible.getBoolean(series);
+        return this.seriesShapesVisible.get(series);
     }
 
     /**
@@ -359,7 +361,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #getSeriesShapesVisible(int)
      */
     public void setSeriesShapesVisible(int series, Boolean flag) {
-        this.seriesShapesVisible.setBoolean(series, flag);
+        this.seriesShapesVisible.set(series, flag);
         fireChangeEvent();
     }
 
@@ -468,7 +470,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @return A boolean.
      */
     public boolean getSeriesShapesFilled(int series) {
-        Boolean flag = this.seriesShapesFilled.getBoolean(series);
+        Boolean flag = this.seriesShapesFilled.get(series);
         if (flag != null) {
             return flag;
         }
@@ -485,7 +487,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #getSeriesShapesFilled(int)
      */
     public void setSeriesShapesFilled(int series, Boolean filled) {
-        this.seriesShapesFilled.setBoolean(series, filled);
+        this.seriesShapesFilled.set(series, filled);
         fireChangeEvent();
     }
 
@@ -908,11 +910,11 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
     public Object clone() throws CloneNotSupportedException {
         LineAndShapeRenderer clone = (LineAndShapeRenderer) super.clone();
         clone.seriesLinesVisible
-                = (BooleanList) this.seriesLinesVisible.clone();
+                = new ArrayList<>(this.seriesLinesVisible);
         clone.seriesShapesVisible
-                = (BooleanList) this.seriesShapesVisible.clone();
+                = new ArrayList<>(this.seriesShapesVisible);
         clone.seriesShapesFilled
-                = (BooleanList) this.seriesShapesFilled.clone();
+                = new ArrayList<>(this.seriesShapesFilled);
         return clone;
     }
 

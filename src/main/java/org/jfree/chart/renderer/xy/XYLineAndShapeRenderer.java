@@ -84,6 +84,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.axis.ValueAxis;
@@ -94,10 +96,11 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleEdge;
-import org.jfree.chart.util.BooleanList;
+//import org.jfree.chart.util.BooleanList;
 import org.jfree.chart.util.LineUtils;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.Args;
+import org.jfree.chart.util.ArrayUtils;
 import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
@@ -124,7 +127,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * A table of flags that control (per series) whether or not lines are
      * visible.
      */
-    private BooleanList seriesLinesVisible;
+    private List<Boolean> seriesLinesVisible;
 
     /** The default value returned by the getLinesVisible() method. */
     private boolean defaultLinesVisible;
@@ -136,7 +139,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * A table of flags that control (per series) whether or not shapes are
      * visible.
      */
-    private BooleanList seriesShapesVisible;
+    private List<Boolean> seriesShapesVisible;
 
     /** The default value returned by the getShapeVisible() method. */
     private boolean defaultShapesVisible;
@@ -145,7 +148,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * A table of flags that control (per series) whether or not shapes are
      * filled.
      */
-    private BooleanList seriesShapesFilled;
+    private List<Boolean> seriesShapesFilled;
 
     /** The default value returned by the getShapeFilled() method. */
     private boolean defaultShapesFilled;
@@ -185,15 +188,15 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @param shapes  shapes visible?
      */
     public XYLineAndShapeRenderer(boolean lines, boolean shapes) {
-        this.seriesLinesVisible = new BooleanList();
+        this.seriesLinesVisible = new ArrayList<>();
         this.defaultLinesVisible = lines;
         this.legendLine = new Line2D.Double(-7.0, 0.0, 7.0, 0.0);
 
-        this.seriesShapesVisible = new BooleanList();
+        this.seriesShapesVisible = new ArrayList<>();
         this.defaultShapesVisible = shapes;
 
         this.useFillPaint = false;     // use item paint for fills by default
-        this.seriesShapesFilled = new BooleanList();
+        this.seriesShapesFilled = new ArrayList<>();
         this.defaultShapesFilled = true;
 
         this.drawOutlines = true;
@@ -273,7 +276,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setSeriesLinesVisible(int, Boolean)
      */
     public Boolean getSeriesLinesVisible(int series) {
-        return this.seriesLinesVisible.getBoolean(series);
+        return (series < this.seriesLinesVisible.size()) ? this.seriesLinesVisible.get(series) : null;
     }
 
     /**
@@ -286,7 +289,8 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesLinesVisible(int)
      */
     public void setSeriesLinesVisible(int series, Boolean flag) {
-        this.seriesLinesVisible.setBoolean(series, flag);
+        ArrayUtils.checkArraySize(seriesLinesVisible, series);
+        this.seriesLinesVisible.set(series, flag);
         fireChangeEvent();
     }
 
@@ -386,7 +390,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setSeriesShapesVisible(int, Boolean)
      */
     public Boolean getSeriesShapesVisible(int series) {
-        return this.seriesShapesVisible.getBoolean(series);
+        return (series < this.seriesShapesVisible.size()) ? this.seriesShapesVisible.get(series) : null;
     }
 
     /**
@@ -412,7 +416,8 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesShapesVisible(int)
      */
     public void setSeriesShapesVisible(int series, Boolean flag) {
-        this.seriesShapesVisible.setBoolean(series, flag);
+        ArrayUtils.checkArraySize(seriesShapesVisible, series);
+        this.seriesShapesVisible.set(series, flag);
         fireChangeEvent();
     }
 
@@ -475,7 +480,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setSeriesShapesFilled(int, Boolean)
      */
     public Boolean getSeriesShapesFilled(int series) {
-        return this.seriesShapesFilled.getBoolean(series);
+        return this.seriesShapesFilled.get(series);
     }
 
     /**
@@ -501,7 +506,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesShapesFilled(int)
      */
     public void setSeriesShapesFilled(int series, Boolean flag) {
-        this.seriesShapesFilled.setBoolean(series, flag);
+        this.seriesShapesFilled.set(series, flag);
         fireChangeEvent();
     }
 
@@ -1112,14 +1117,14 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
     public Object clone() throws CloneNotSupportedException {
         XYLineAndShapeRenderer clone = (XYLineAndShapeRenderer) super.clone();
         clone.seriesLinesVisible
-                = (BooleanList) this.seriesLinesVisible.clone();
+                = new ArrayList<>(this.seriesLinesVisible);
         if (this.legendLine != null) {
             clone.legendLine = ShapeUtils.clone(this.legendLine);
         }
         clone.seriesShapesVisible
-                = (BooleanList) this.seriesShapesVisible.clone();
+                = new ArrayList<>(this.seriesShapesVisible);
         clone.seriesShapesFilled
-                = (BooleanList) this.seriesShapesFilled.clone();
+                = new ArrayList<>(this.seriesShapesFilled);
         return clone;
     }
 

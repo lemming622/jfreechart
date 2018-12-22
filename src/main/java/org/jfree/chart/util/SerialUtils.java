@@ -50,7 +50,9 @@ import java.io.Serializable;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.text.CharacterIterator;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -115,6 +117,28 @@ public class SerialUtils {
 
     }
 
+    public static ArrayList<Paint> readPaintList(ObjectInputStream stream) 
+            throws IOException, ClassNotFoundException {
+        
+        Class c = (Class) stream.readObject();
+        //check to make sure that this is an ArrayList
+        if(!c.equals(ArrayList.class)){
+            throw new IOException("Not a valid class when reading in a PaintList.  Read :" + c.getSimpleName());
+        }
+        
+        int count = stream.readInt();
+        ArrayList<Paint> output = new ArrayList<>(count);
+        
+        for(int i = 0; i < count; i++){
+            int index = stream.readInt();
+            if(index != -1){
+                output.add(index, readPaint(stream));
+            }
+        }
+        
+        return output;
+    }
+    
     /**
      * Serialises a {@code Paint} object.
      *
@@ -150,6 +174,18 @@ public class SerialUtils {
             stream.writeBoolean(true);
         }
 
+    }
+    
+    public static void writePaintList(List<Paint> paints, ObjectOutputStream stream)
+        throws IOException {
+        
+        stream.writeObject(paints.getClass());
+        
+        stream.writeInt(paints.size());
+        
+        for (Paint paint : paints) {
+           SerialUtils.writePaint(paint, stream);
+        }
     }
 
     /**

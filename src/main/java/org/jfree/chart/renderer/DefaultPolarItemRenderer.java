@@ -78,6 +78,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -96,8 +97,8 @@ import org.jfree.chart.plot.PolarPlot;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.text.TextUtils;
 import org.jfree.chart.urls.XYURLGenerator;
-import org.jfree.chart.util.BooleanList;
-import org.jfree.chart.util.ObjectList;
+//import org.jfree.chart.util.BooleanList;
+//import org.jfree.chart.util.ObjectList;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.Args;
 import org.jfree.chart.util.PublicCloneable;
@@ -115,7 +116,7 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
     private PolarPlot plot;
 
     /** Flags that control whether the renderer fills each series or not. */
-    private BooleanList seriesFilled;
+    private List<Boolean> seriesFilled;
 
     /**
      * Flag that controls whether an outline is drawn for filled series or
@@ -167,7 +168,7 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
      * 
      * @since 1.0.14
      */
-    private ObjectList toolTipGeneratorList;
+    private List<Object> toolTipGeneratorList;
 
     /**
      * The base tool tip generator.
@@ -201,7 +202,7 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
      * Creates a new instance of DefaultPolarItemRenderer
      */
     public DefaultPolarItemRenderer() {
-        this.seriesFilled = new BooleanList();
+        this.seriesFilled = new ArrayList<>();
         this.drawOutlineWhenFilled = true;
         this.fillComposite = AlphaComposite.getInstance(
                 AlphaComposite.SRC_OVER, 0.3f);
@@ -210,7 +211,7 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
         this.shapesVisible = true;
         this.connectFirstAndLastPoint = true;
         
-        this.toolTipGeneratorList = new ObjectList();
+        this.toolTipGeneratorList = new ArrayList<Object>();
         this.urlGenerator = null;
         this.legendItemToolTipGenerator = null;
         this.legendItemURLGenerator = null;
@@ -369,7 +370,7 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
      */
     public boolean isSeriesFilled(int series) {
         boolean result = false;
-        Boolean b = this.seriesFilled.getBoolean(series);
+        Boolean b = this.seriesFilled.get(series);
         if (b != null) {
             result = b.booleanValue();
         }
@@ -383,7 +384,7 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
      * @param filled  the flag.
      */
     public void setSeriesFilled(int series, boolean filled) {
-        this.seriesFilled.setBoolean(series, Boolean.valueOf(filled));
+        this.seriesFilled.set(series, Boolean.valueOf(filled));
     }
 
     /**
@@ -959,9 +960,9 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
         if (this.legendLine != null) {
             clone.legendLine = ShapeUtils.clone(this.legendLine);
         }
-        clone.seriesFilled = (BooleanList) this.seriesFilled.clone();
+        clone.seriesFilled = new ArrayList<Boolean> (this.seriesFilled);
         clone.toolTipGeneratorList
-                = (ObjectList) this.toolTipGeneratorList.clone();
+                = new ArrayList<Object> (this.toolTipGeneratorList);
         if (clone.baseToolTipGenerator instanceof PublicCloneable) {
             clone.baseToolTipGenerator = (XYToolTipGenerator)
                     ObjectUtils.clone(this.baseToolTipGenerator);

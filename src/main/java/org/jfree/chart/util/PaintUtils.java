@@ -61,32 +61,36 @@ public class PaintUtils {
      * @return A boolean.
      */
     public static boolean equal(Paint p1, Paint p2) {
-        if (p1 == p2) {
+        return PaintUtils.equalObject(p1, p2);
+    }
+    
+    public static boolean equalObject(Object o1, Object o2){
+        if (o1 == o2) {
             return true;
         }
             
         // handle cases where either or both arguments are null
-        if (p1 == null) {
-            return (p2 == null);   
+        if (o1 == null) {
+            return (o2 == null);   
         }
-        if (p2 == null) {
+        if (o2 == null) {
             return false;   
         }
 
         // handle GradientPaint as a special case...
-        if (p1 instanceof GradientPaint && p2 instanceof GradientPaint) {
-            GradientPaint gp1 = (GradientPaint) p1;
-            GradientPaint gp2 = (GradientPaint) p2;
+        if (o1 instanceof GradientPaint && o2 instanceof GradientPaint) {
+            GradientPaint gp1 = (GradientPaint) o1;
+            GradientPaint gp2 = (GradientPaint) o2;
             return gp1.getColor1().equals(gp2.getColor1()) 
                     && gp1.getColor2().equals(gp2.getColor2())
                     && gp1.getPoint1().equals(gp2.getPoint1())    
                     && gp1.getPoint2().equals(gp2.getPoint2())
                     && gp1.isCyclic() == gp2.isCyclic()
                     && gp1.getTransparency() == gp1.getTransparency(); 
-        } else if (p1 instanceof LinearGradientPaint 
-                && p2 instanceof LinearGradientPaint) {
-            LinearGradientPaint lgp1 = (LinearGradientPaint) p1;
-            LinearGradientPaint lgp2 = (LinearGradientPaint) p2;
+        } else if (o1 instanceof LinearGradientPaint 
+                && o2 instanceof LinearGradientPaint) {
+            LinearGradientPaint lgp1 = (LinearGradientPaint) o1;
+            LinearGradientPaint lgp2 = (LinearGradientPaint) o2;
             return lgp1.getStartPoint().equals(lgp2.getStartPoint())
                     && lgp1.getEndPoint().equals(lgp2.getEndPoint()) 
                     && Arrays.equals(lgp1.getFractions(), lgp2.getFractions())
@@ -94,10 +98,10 @@ public class PaintUtils {
                     && lgp1.getCycleMethod() == lgp2.getCycleMethod()
                     && lgp1.getColorSpace() == lgp2.getColorSpace()
                     && lgp1.getTransform().equals(lgp2.getTransform());
-        } else if (p1 instanceof RadialGradientPaint 
-                && p2 instanceof RadialGradientPaint) {
-            RadialGradientPaint rgp1 = (RadialGradientPaint) p1;
-            RadialGradientPaint rgp2 = (RadialGradientPaint) p2;
+        } else if (o1 instanceof RadialGradientPaint 
+                && o2 instanceof RadialGradientPaint) {
+            RadialGradientPaint rgp1 = (RadialGradientPaint) o1;
+            RadialGradientPaint rgp2 = (RadialGradientPaint) o2;
             return rgp1.getCenterPoint().equals(rgp2.getCenterPoint())
                     && rgp1.getRadius() == rgp2.getRadius() 
                     && rgp1.getFocusPoint().equals(rgp2.getFocusPoint())
@@ -107,7 +111,7 @@ public class PaintUtils {
                     && rgp1.getColorSpace() == rgp2.getColorSpace()
                     && rgp1.getTransform().equals(rgp2.getTransform());
         } else {
-            return p1.equals(p2);
+            return o1.equals(o2);
         }
     }
 

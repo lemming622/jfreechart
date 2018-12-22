@@ -40,6 +40,8 @@
  * 22-Nov-2007 : Added hashCode() method for 'int' (DG);
  * 05-Dec-2007 : Added special methods to handle BooleanList, PaintList,
  *               and StrokeList (DG);
+ * 29-Nov-2018 : Changed special methods to handle ArrayList<> of Boolean,
+ *               Paint, and Stroke (KB);
  *
  */
 
@@ -48,9 +50,10 @@ package org.jfree.chart;
 import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.Stroke;
-import org.jfree.chart.util.BooleanList;
-import org.jfree.chart.util.PaintList;
-import org.jfree.chart.util.StrokeList;
+import java.util.ArrayList;
+//import org.jfree.chart.util.BooleanList;
+//import org.jfree.chart.util.PaintList;
+//import org.jfree.chart.util.StrokeList;
 
 /**
  * Some utility methods for calculating hash codes.  
@@ -244,103 +247,103 @@ public class HashUtils {
      * 
      * @return The hash code.
      * 
-     * @since 1.0.9
      */
-    public static int hashCode(int pre, BooleanList list) {
+    public static int hashCode(int pre, ArrayList list) {
         if (list == null) {
             return pre;
         }
-        int result = 127;
-        int size = list.size();
-        result = HashUtils.hashCode(result, size);
-        
-        // for efficiency, we just use the first, last and middle items to
-        // compute a hashCode...
-        if (size > 0) {
-            result = HashUtils.hashCode(result, list.getBoolean(0));
-            if (size > 1) {
-                result = HashUtils.hashCode(result, 
-                        list.getBoolean(size - 1));
-                if (size > 2) {
-                    result = HashUtils.hashCode(result, 
-                            list.getBoolean(size / 2));
-                }
-            }
-        }
+        int result = list.hashCode();
+//        int size = list.size();
+//        result = HashUtils.hashCode(result, size);
+//        
+//        // for efficiency, we just use the first, last and middle items to
+//        // compute a hashCode...
+//        if (size > 0) {
+//            result = HashUtils.hashCode(result, list.get(0));
+//            if (size > 1) {
+//                result = HashUtils.hashCode(result, 
+//                        list.get(size - 1));
+//                if (size > 2) {
+//                    result = HashUtils.hashCode(result, 
+//                            list.get(size / 2));
+//                }
+//            }
+//        }
         return 37 * pre + result;
     }
 
-    /**
-     * Computes a hash code for a {@link PaintList}.  In the latest version
-     * of JCommon, the {@link PaintList} class should implement the hashCode()
-     * method correctly, but we compute it here anyway so that we can work with 
-     * older versions of JCommon (back to 1.0.0).
-     * 
-     * @param pre  the seed value.
-     * @param list  the list ({@code null} permitted).
-     * 
-     * @return The hash code.
-     * 
-     * @since 1.0.9
-     */
-    public static int hashCode(int pre, PaintList list) {
-        if (list == null) {
-            return pre;
-        }
-        int result = 127;
-        int size = list.size();
-        result = HashUtils.hashCode(result, size);
-        
-        // for efficiency, we just use the first, last and middle items to
-        // compute a hashCode...
-        if (size > 0) {
-            result = HashUtils.hashCode(result, list.getPaint(0));
-            if (size > 1) {
-                result = HashUtils.hashCode(result, 
-                        list.getPaint(size - 1));
-                if (size > 2) {
-                    result = HashUtils.hashCode(result, 
-                            list.getPaint(size / 2));
-                }
-            }
-        }
-        return 37 * pre + result;
-    }
-
-    /**
-     * Computes a hash code for a {@link StrokeList}.  In the latest version
-     * of JCommon, the {@link StrokeList} class should implement the hashCode()
-     * method correctly, but we compute it here anyway so that we can work with 
-     * older versions of JCommon (back to 1.0.0).
-     * 
-     * @param pre  the seed value.
-     * @param list  the list ({@code null} permitted).
-     * 
-     * @return The hash code.
-     * 
-     * @since 1.0.9
-     */
-    public static int hashCode(int pre, StrokeList list) {
-        if (list == null) {
-            return pre;
-        }
-        int result = 127;
-        int size = list.size();
-        result = HashUtils.hashCode(result, size);
-        
-        // for efficiency, we just use the first, last and middle items to
-        // compute a hashCode...
-        if (size > 0) {
-            result = HashUtils.hashCode(result, list.getStroke(0));
-            if (size > 1) {
-                result = HashUtils.hashCode(result, 
-                        list.getStroke(size - 1));
-                if (size > 2) {
-                    result = HashUtils.hashCode(result, 
-                            list.getStroke(size / 2));
-                }
-            }
-        }
-        return 37 * pre + result;
-    }
+//    /**
+//     * Computes a hash code for a {@link PaintList}.  In the latest version
+//     * of JCommon, the {@link PaintList} class should implement the hashCode()
+//     * method correctly, but we compute it here anyway so that we can work with 
+//     * older versions of JCommon (back to 1.0.0).
+//     * 
+//     * @param pre  the seed value.
+//     * @param list  the list ({@code null} permitted).
+//     * 
+//     * @return The hash code.
+//     * 
+//     * @since 1.0.9
+//     */
+//    public static int hashCode(int pre, ArrayList<Paint> list) {
+//        if (list == null) {
+//            return pre;
+//        }
+//        int result = 127;
+//        int size = list.size();
+//        result = HashUtils.hashCode(result, size);
+//        
+//        // for efficiency, we just use the first, last and middle items to
+//        // compute a hashCode...
+//        if (size > 0) {
+//            result = HashUtils.hashCode(result, list.getPaint(0));
+//            if (size > 1) {
+//                result = HashUtils.hashCode(result, 
+//                        list.getPaint(size - 1));
+//                if (size > 2) {
+//                    result = HashUtils.hashCode(result, 
+//                            list.getPaint(size / 2));
+//                }
+//            }
+//        }
+//        return 37 * pre + result;
+//    }
+//
+//    /**
+//     * Computes a hash code for a {@link StrokeList}.  In the latest version
+//     * of JCommon, the {@link StrokeList} class should implement the hashCode()
+//     * method correctly, but we compute it here anyway so that we can work with 
+//     * older versions of JCommon (back to 1.0.0).
+//     * 
+//     * @param pre  the seed value.
+//     * @param list  the list ({@code null} permitted).
+//     * 
+//     * @return The hash code.
+//     * 
+//     * @since 1.0.9
+//     */
+//    public static int hashCode(int pre, StrokeList list) {
+//        if (list == null) {
+//            return pre;
+//        }
+//        int result = 127;
+//        int size = list.size();
+//        result = HashUtils.hashCode(result, size);
+//        
+//        // for efficiency, we just use the first, last and middle items to
+//        // compute a hashCode...
+//        if (size > 0) {
+//            result = HashUtils.hashCode(result, list.getStroke(0));
+//            if (size > 1) {
+//                result = HashUtils.hashCode(result, 
+//                        list.getStroke(size - 1));
+//                if (size > 2) {
+//                    result = HashUtils.hashCode(result, 
+//                            list.getStroke(size / 2));
+//                }
+//            }
+//        }
+//        return 37 * pre + result;
+//    }
+    
 }

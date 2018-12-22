@@ -96,7 +96,6 @@
  * 25-Apr-2016 : Fix cloning test failure (DG);
  *
  */
-
 package org.jfree.chart.renderer;
 
 import java.awt.BasicStroke;
@@ -113,6 +112,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.List;
@@ -130,85 +131,116 @@ import org.jfree.chart.plot.DrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.ui.TextAnchor;
-import org.jfree.chart.util.BooleanList;
+//import org.jfree.chart.util.BooleanList;
 import org.jfree.chart.util.ObjectUtils;
-import org.jfree.chart.util.PaintList;
+//import org.jfree.chart.util.PaintList;
 import org.jfree.chart.util.PaintUtils;
 import org.jfree.chart.util.Args;
+import org.jfree.chart.util.ArrayUtils;
 import org.jfree.chart.util.SerialUtils;
-import org.jfree.chart.util.ShapeList;
+//import org.jfree.chart.util.ShapeList;
 import org.jfree.chart.util.ShapeUtils;
-import org.jfree.chart.util.StrokeList;
+//import org.jfree.chart.util.StrokeList;
 import org.jfree.data.ItemKey;
 
 /**
- * Base class providing common services for renderers.  Most methods that update
+ * Base class providing common services for renderers. Most methods that update
  * attributes of the renderer will fire a {@link RendererChangeEvent}, which
  * normally means the plot that owns the renderer will receive notification that
  * the renderer has been changed (the plot will, in turn, notify the chart).
  */
 public abstract class AbstractRenderer implements Cloneable, Serializable {
 
-    /** For serialization. */
+    /**
+     * For serialization.
+     */
     private static final long serialVersionUID = -828267569428206075L;
 
-    /** Zero represented as a {@code double}. */
+    /**
+     * Zero represented as a {@code double}.
+     */
     public static final Double ZERO = 0.0;
 
-    /** The default paint. */
+    /**
+     * The default paint.
+     */
     public static final Paint DEFAULT_PAINT = Color.BLUE;
 
-    /** The default outline paint. */
+    /**
+     * The default outline paint.
+     */
     public static final Paint DEFAULT_OUTLINE_PAINT = Color.GRAY;
 
-    /** The default stroke. */
+    /**
+     * The default stroke.
+     */
     public static final Stroke DEFAULT_STROKE = new BasicStroke(1.0f);
 
-    /** The default outline stroke. */
+    /**
+     * The default outline stroke.
+     */
     public static final Stroke DEFAULT_OUTLINE_STROKE = new BasicStroke(1.0f);
 
-    /** The default shape. */
+    /**
+     * The default shape.
+     */
     public static final Shape DEFAULT_SHAPE
             = new Rectangle2D.Double(-3.0, -3.0, 6.0, 6.0);
 
-    /** The default value label font. */
+    /**
+     * The default value label font.
+     */
     public static final Font DEFAULT_VALUE_LABEL_FONT
             = new Font("SansSerif", Font.PLAIN, 10);
 
-    /** The default value label paint. */
+    /**
+     * The default value label paint.
+     */
     public static final Paint DEFAULT_VALUE_LABEL_PAINT = Color.BLACK;
 
-    /** A list of flags that controls whether or not each series is visible. */
-    private BooleanList seriesVisibleList;
+    /**
+     * A list of flags that controls whether or not each series is visible.
+     */
+    private ArrayList<Boolean> seriesVisibleList;
 
-    /** The default visibility for all series. */
+    /**
+     * The default visibility for all series.
+     */
     private boolean defaultSeriesVisible;
 
     /**
      * A list of flags that controls whether or not each series is visible in
      * the legend.
      */
-    private BooleanList seriesVisibleInLegendList;
-
-    /** The default visibility for each series in the legend. */
-    private boolean defaultSeriesVisibleInLegend;
-
-    /** The paint list. */
-    private PaintList paintList;
+    private ArrayList<Boolean> seriesVisibleInLegendList;
 
     /**
-     * A flag that controls whether or not the paintList is auto-populated
-     * in the {@link #lookupSeriesPaint(int)} method.
+     * The default visibility for each series in the legend.
+     */
+    private boolean defaultSeriesVisibleInLegend;
+
+    /**
+     * The paint list.
+     */
+    private transient ArrayList<Paint> paintList;
+
+    /**
+     * A flag that controls whether or not the paintList is auto-populated in
+     * the {@link #lookupSeriesPaint(int)} method.
      *
      * @since 1.0.6
      */
     private boolean autoPopulateSeriesPaint;
 
-    /** The default paint, used when there is no paint assigned for a series. */
+    /**
+     * The default paint, used when there is no paint assigned for a series.
+     */
     private transient Paint defaultPaint;
 
-    /** The fill paint list. */
-    private PaintList fillPaintList;
+    /**
+     * The fill paint list.
+     */
+    private transient ArrayList<Paint> fillPaintList;
 
     /**
      * A flag that controls whether or not the fillPaintList is auto-populated
@@ -218,11 +250,15 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      */
     private boolean autoPopulateSeriesFillPaint;
 
-    /** The base fill paint. */
+    /**
+     * The base fill paint.
+     */
     private transient Paint defaultFillPaint;
 
-    /** The outline paint list. */
-    private PaintList outlinePaintList;
+    /**
+     * The outline paint list.
+     */
+    private transient ArrayList<Paint> outlinePaintList;
 
     /**
      * A flag that controls whether or not the outlinePaintList is
@@ -232,27 +268,37 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      */
     private boolean autoPopulateSeriesOutlinePaint;
 
-    /** The base outline paint. */
+    /**
+     * The base outline paint.
+     */
     private transient Paint defaultOutlinePaint;
 
-    /** The stroke list. */
-    private StrokeList strokeList;
+    /**
+     * The stroke list.
+     */
+    private ArrayList<Stroke> strokeList;
 
     /**
-     * A flag that controls whether or not the strokeList is auto-populated
-     * in the {@link #lookupSeriesStroke(int)} method.
+     * A flag that controls whether or not the strokeList is auto-populated in
+     * the {@link #lookupSeriesStroke(int)} method.
      *
      * @since 1.0.6
      */
     private boolean autoPopulateSeriesStroke;
 
-    /** The base stroke. */
+    /**
+     * The base stroke.
+     */
     private transient Stroke defaultStroke;
 
-    /** The outline stroke list. */
-    private StrokeList outlineStrokeList;
+    /**
+     * The outline stroke list.
+     */
+    private ArrayList<Stroke> outlineStrokeList;
 
-    /** The base outline stroke. */
+    /**
+     * The base outline stroke.
+     */
     private transient Stroke defaultOutlineStroke;
 
     /**
@@ -263,58 +309,84 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      */
     private boolean autoPopulateSeriesOutlineStroke;
 
-    /** A shape list. */
-    private ShapeList shapeList;
+    /**
+     * A shape list.
+     */
+    private ArrayList<Shape> shapeList;
 
     /**
-     * A flag that controls whether or not the shapeList is auto-populated
-     * in the {@link #lookupSeriesShape(int)} method.
+     * A flag that controls whether or not the shapeList is auto-populated in
+     * the {@link #lookupSeriesShape(int)} method.
      *
      * @since 1.0.6
      */
     private boolean autoPopulateSeriesShape;
 
-    /** The base shape. */
+    /**
+     * The base shape.
+     */
     private transient Shape defaultShape;
 
-    /** Visibility of the item labels PER series. */
-    private BooleanList itemLabelsVisibleList;
+    /**
+     * Visibility of the item labels PER series.
+     */
+    private ArrayList<Boolean> itemLabelsVisibleList;
 
-    /** The base item labels visible. */
+    /**
+     * The base item labels visible.
+     */
     private boolean defaultItemLabelsVisible;
 
-    /** The item label font list (one font per series). */
+    /**
+     * The item label font list (one font per series).
+     */
     private Map<Integer, Font> itemLabelFontMap;
 
-    /** The base item label font. */
+    /**
+     * The base item label font.
+     */
     private Font defaultItemLabelFont;
 
-    /** The item label paint list (one paint per series). */
-    private PaintList itemLabelPaintList;
+    /**
+     * The item label paint list (one paint per series).
+     */
+    private transient ArrayList<Paint> itemLabelPaintList;
 
-    /** The base item label paint. */
+    /**
+     * The base item label paint.
+     */
     private transient Paint defaultItemLabelPaint;
 
-    /** The positive item label position (per series). */
+    /**
+     * The positive item label position (per series).
+     */
     private Map<Integer, ItemLabelPosition> positiveItemLabelPositionMap;
 
-    /** The fallback positive item label position. */
+    /**
+     * The fallback positive item label position.
+     */
     private ItemLabelPosition defaultPositiveItemLabelPosition;
 
-    /** The negative item label position (per series). */
+    /**
+     * The negative item label position (per series).
+     */
     private Map<Integer, ItemLabelPosition> negativeItemLabelPositionMap;
 
-    /** The fallback negative item label position. */
+    /**
+     * The fallback negative item label position.
+     */
     private ItemLabelPosition defaultNegativeItemLabelPosition;
 
-    /** The item label anchor offset. */
+    /**
+     * The item label anchor offset.
+     */
     private double itemLabelAnchorOffset = 2.0;
 
     /**
-     * Flags that control whether or not entities are generated for each
-     * series.  This will be overridden by 'createEntities'.
+     * Flags that control whether or not entities are generated for each series.
+     * This will be overridden by 'createEntities'.
      */
-    private BooleanList createEntitiesList;
+    private ArrayList<Boolean> createEntitiesList;
 
     /**
      * The default flag that controls whether or not entities are generated.
@@ -327,19 +399,19 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      *
      * @since 1.0.11
      */
-    private ShapeList legendShapeList;
+    private ArrayList<Shape> legendShapeList;
 
     /**
-     * The base shape for legend items.  If this is {@code null}, the
-     * series shape will be used.
+     * The base shape for legend items. If this is {@code null}, the series
+     * shape will be used.
      *
      * @since 1.0.11
      */
     private transient Shape defaultLegendShape;
 
     /**
-     * A special flag that, if true, will cause the getLegendItem() method
-     * to configure the legend shape as if it were a line.
+     * A special flag that, if true, will cause the getLegendItem() method to
+     * configure the legend shape as if it were a line.
      *
      * @since 1.0.14
      */
@@ -364,12 +436,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      *
      * @since 1.0.11
      */
-    private PaintList legendTextPaint;
+    private transient ArrayList<Paint> legendTextPaint;
 
     /**
-     * The default paint for the legend text items (if this is
-     * {@code null}, the {@link LegendTitle} class will determine the
-     * text paint to use.
+     * The default paint for the legend text items (if this is {@code null}, the
+     * {@link LegendTitle} class will determine the text paint to use.
      *
      * @since 1.0.11
      */
@@ -383,82 +454,86 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      */
     private boolean dataBoundsIncludesVisibleSeriesOnly = true;
 
-    /** The default radius for the entity 'hotspot' */
+    /**
+     * The default radius for the entity 'hotspot'
+     */
     private int defaultEntityRadius;
 
-    /** Storage for registered change listeners. */
+    /**
+     * Storage for registered change listeners.
+     */
     private transient EventListenerList listenerList;
 
-    /** An event for re-use. */
+    /**
+     * An event for re-use.
+     */
     private transient RendererChangeEvent event;
 
     /**
      * Default constructor.
      */
     public AbstractRenderer() {
-        this.seriesVisibleList = new BooleanList();
+        this.seriesVisibleList = new ArrayList<>();
         this.defaultSeriesVisible = true;
 
-        this.seriesVisibleInLegendList = new BooleanList();
+        this.seriesVisibleInLegendList = new ArrayList<>();
         this.defaultSeriesVisibleInLegend = true;
 
-        this.paintList = new PaintList();
+        this.paintList = new ArrayList<>();
         this.defaultPaint = DEFAULT_PAINT;
         this.autoPopulateSeriesPaint = true;
 
-        this.fillPaintList = new PaintList();
+        this.fillPaintList = new ArrayList<>();
         this.defaultFillPaint = Color.WHITE;
         this.autoPopulateSeriesFillPaint = false;
 
-        this.outlinePaintList = new PaintList();
+        this.outlinePaintList = new ArrayList<>();
         this.defaultOutlinePaint = DEFAULT_OUTLINE_PAINT;
         this.autoPopulateSeriesOutlinePaint = false;
 
-        this.strokeList = new StrokeList();
+        this.strokeList = new ArrayList<>();
         this.defaultStroke = DEFAULT_STROKE;
         this.autoPopulateSeriesStroke = true;
 
-        this.outlineStrokeList = new StrokeList();
+        this.outlineStrokeList = new ArrayList<>();
         this.defaultOutlineStroke = DEFAULT_OUTLINE_STROKE;
         this.autoPopulateSeriesOutlineStroke = false;
 
-        this.shapeList = new ShapeList();
+        this.shapeList = new ArrayList<>();
         this.defaultShape = DEFAULT_SHAPE;
         this.autoPopulateSeriesShape = true;
 
-        this.itemLabelsVisibleList = new BooleanList();
+        this.itemLabelsVisibleList = new ArrayList<>();
         this.defaultItemLabelsVisible = false;
 
-        this.itemLabelFontMap = new HashMap<Integer, Font>();
+        this.itemLabelFontMap = new HashMap<>();
         this.defaultItemLabelFont = new Font("SansSerif", Font.PLAIN, 10);
 
-        this.itemLabelPaintList = new PaintList();
+        this.itemLabelPaintList = new ArrayList<>();
         this.defaultItemLabelPaint = Color.BLACK;
 
-        this.positiveItemLabelPositionMap 
-                = new HashMap<Integer, ItemLabelPosition>();
+        this.positiveItemLabelPositionMap = new HashMap<>();
         this.defaultPositiveItemLabelPosition = new ItemLabelPosition(
                 ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER);
 
-        this.negativeItemLabelPositionMap 
-                = new HashMap<Integer, ItemLabelPosition>();
+        this.negativeItemLabelPositionMap = new HashMap<>();
         this.defaultNegativeItemLabelPosition = new ItemLabelPosition(
                 ItemLabelAnchor.OUTSIDE6, TextAnchor.TOP_CENTER);
 
-        this.createEntitiesList = new BooleanList();
+        this.createEntitiesList = new ArrayList<>();
         this.defaultCreateEntities = true;
 
         this.defaultEntityRadius = 3;
 
-        this.legendShapeList = new ShapeList();
+        this.legendShapeList = new ArrayList<>();
         this.defaultLegendShape = null;
 
         this.treatLegendShapeAsLine = false;
 
-        this.legendTextFontMap = new HashMap<Integer, Font>();
+        this.legendTextFontMap = new HashMap<>();
         this.defaultLegendTextFont = null;
 
-        this.legendTextPaint = new PaintList();
+        this.legendTextPaint = new ArrayList<>();
         this.defaultLegendTextPaint = null;
 
         this.listenerList = new EventListenerList();
@@ -472,29 +547,29 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     public abstract DrawingSupplier getDrawingSupplier();
 
     /**
-     * Adds a {@code KEY_BEGIN_ELEMENT} hint to the graphics target.  This
-     * hint is recognised by <b>JFreeSVG</b> (in theory it could be used by 
-     * other {@code Graphics2D} implementations also).
-     * 
-     * @param g2  the graphics target ({@code null} not permitted).
-     * @param key  the key ({@code null} not permitted).
-     * 
-     * @see #endElementGroup(java.awt.Graphics2D) 
+     * Adds a {@code KEY_BEGIN_ELEMENT} hint to the graphics target. This hint
+     * is recognised by <b>JFreeSVG</b> (in theory it could be used by other
+     * {@code Graphics2D} implementations also).
+     *
+     * @param g2 the graphics target ({@code null} not permitted).
+     * @param key the key ({@code null} not permitted).
+     *
+     * @see #endElementGroup(java.awt.Graphics2D)
      * @since 1.0.20
      */
     protected void beginElementGroup(Graphics2D g2, ItemKey key) {
         Args.nullNotPermitted(key, "key");
         Map m = new HashMap(1);
         m.put("ref", key.toJSONString());
-        g2.setRenderingHint(ChartHints.KEY_BEGIN_ELEMENT, m);        
+        g2.setRenderingHint(ChartHints.KEY_BEGIN_ELEMENT, m);
     }
-    
+
     /**
      * Adds a {@code KEY_END_ELEMENT} hint to the graphics target.
-     * 
-     * @param g2  the graphics target ({@code null} not permitted).
-     * 
-     * @see #beginElementGroup(java.awt.Graphics2D, org.jfree.data.ItemKey) 
+     *
+     * @param g2 the graphics target ({@code null} not permitted).
+     *
+     * @see #beginElementGroup(java.awt.Graphics2D, org.jfree.data.ItemKey)
      * @since 1.0.20
      */
     protected void endElementGroup(Graphics2D g2) {
@@ -502,13 +577,12 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // SERIES VISIBLE (not yet respected by all renderers)
-
     /**
-     * Returns a boolean that indicates whether or not the specified item
-     * should be drawn.
+     * Returns a boolean that indicates whether or not the specified item should
+     * be drawn.
      *
-     * @param series  the series index.
-     * @param item  the item index.
+     * @param series the series index.
+     * @param item the item index.
      *
      * @return A boolean.
      */
@@ -518,19 +592,21 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
 
     /**
      * Returns a boolean that indicates whether or not the specified series
-     * should be drawn.  In fact this method should be named 
-     * lookupSeriesVisible() to be consistent with the other series
-     * attributes and avoid confusion with the getSeriesVisible() method.
+     * should be drawn. In fact this method should be named
+     * lookupSeriesVisible() to be consistent with the other series attributes
+     * and avoid confusion with the getSeriesVisible() method.
      *
-     * @param series  the series index.
+     * @param series the series index.
      *
      * @return A boolean.
      */
     public boolean isSeriesVisible(int series) {
         boolean result = this.defaultSeriesVisible;
-        Boolean b = this.seriesVisibleList.getBoolean(series);
-        if (b != null) {
-            result = b;
+        if (series < seriesVisibleList.size()) {
+            Boolean b = this.seriesVisibleList.get(series);
+            if (b != null) {
+                result = b;
+            }
         }
         return result;
     }
@@ -538,22 +614,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the flag that controls whether a series is visible.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return The flag (possibly {@code null}).
      *
      * @see #setSeriesVisible(int, Boolean)
      */
     public Boolean getSeriesVisible(int series) {
-        return this.seriesVisibleList.getBoolean(series);
+        return this.seriesVisibleList.get(series);
     }
 
     /**
      * Sets the flag that controls whether a series is visible and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param visible  the flag ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param visible the flag ({@code null} permitted).
      *
      * @see #getSeriesVisible(int)
      */
@@ -566,14 +642,17 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * requested, sends a {@link RendererChangeEvent} to all registered
      * listeners.
      *
-     * @param series  the series index.
-     * @param visible  the flag ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index.
+     * @param visible the flag ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesVisible(int)
      */
     public void setSeriesVisible(int series, Boolean visible, boolean notify) {
-        this.seriesVisibleList.setBoolean(series, visible);
+        
+        ArrayUtils.checkArraySize(seriesVisibleList, series);
+        
+        this.seriesVisibleList.set(series, visible);
         if (notify) {
             // we create an event with a special flag set...the purpose of
             // this is to communicate to the plot (the default receiver of
@@ -596,10 +675,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default series visibility and sends a 
+     * Sets the default series visibility and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param visible  the flag.
+     * @param visible the flag.
      *
      * @see #getDefaultSeriesVisible()
      */
@@ -609,11 +688,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default series visibility and, if requested, sends
-     * a {@link RendererChangeEvent} to all registered listeners.
+     * Sets the default series visibility and, if requested, sends a
+     * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param visible  the visibility.
-     * @param notify  notify listeners?
+     * @param visible the visibility.
+     * @param notify notify listeners?
      *
      * @see #getDefaultSeriesVisible()
      */
@@ -630,46 +709,47 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // SERIES VISIBLE IN LEGEND (not yet respected by all renderers)
-
     /**
-     * Returns {@code true} if the series should be shown in the legend,
-     * and {@code false} otherwise.
+     * Returns {@code true} if the series should be shown in the legend, and
+     * {@code false} otherwise.
      *
-     * @param series  the series index.
+     * @param series the series index.
      *
      * @return A boolean.
      */
     public boolean isSeriesVisibleInLegend(int series) {
         boolean result = this.defaultSeriesVisibleInLegend;
-        Boolean b = this.seriesVisibleInLegendList.getBoolean(series);
-        if (b != null) {
-            result = b;
+        if (series < seriesVisibleInLegendList.size()) {
+            Boolean b = this.seriesVisibleInLegendList.get(series);
+            if (b != null) {
+                result = b;
+            }
         }
         return result;
     }
 
     /**
-     * Returns the flag that controls whether a series is visible in the
-     * legend.  This method returns only the "per series" settings - to
-     * incorporate the default settings as well, you need to use the
+     * Returns the flag that controls whether a series is visible in the legend.
+     * This method returns only the "per series" settings - to incorporate the
+     * default settings as well, you need to use the
      * {@link #isSeriesVisibleInLegend(int)} method.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return The flag (possibly {@code null}).
      *
      * @see #setSeriesVisibleInLegend(int, Boolean)
      */
     public Boolean getSeriesVisibleInLegend(int series) {
-        return this.seriesVisibleInLegendList.getBoolean(series);
+        return this.seriesVisibleInLegendList.get(series);
     }
 
     /**
-     * Sets the flag that controls whether a series is visible in the legend
-     * and sends a {@link RendererChangeEvent} to all registered listeners.
+     * Sets the flag that controls whether a series is visible in the legend and
+     * sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param visible  the flag ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param visible the flag ({@code null} permitted).
      *
      * @see #getSeriesVisibleInLegend(int)
      */
@@ -682,15 +762,17 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * and, if requested, sends a {@link RendererChangeEvent} to all registered
      * listeners.
      *
-     * @param series  the series index.
-     * @param visible  the flag ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index.
+     * @param visible the flag ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesVisibleInLegend(int)
      */
     public void setSeriesVisibleInLegend(int series, Boolean visible,
-                                         boolean notify) {
-        this.seriesVisibleInLegendList.setBoolean(series, visible);
+            boolean notify) {
+        ArrayUtils.checkArraySize(seriesVisibleInLegendList, series);
+        
+        this.seriesVisibleInLegendList.set(series, visible);
         if (notify) {
             fireChangeEvent();
         }
@@ -711,7 +793,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default visibility in the legend and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param visible  the flag.
+     * @param visible the flag.
      *
      * @see #getDefaultSeriesVisibleInLegend()
      */
@@ -721,15 +803,15 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default visibility in the legend and, if requested, sends
-     * a {@link RendererChangeEvent} to all registered listeners.
+     * Sets the default visibility in the legend and, if requested, sends a
+     * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param visible  the visibility.
-     * @param notify  notify listeners?
+     * @param visible the visibility.
+     * @param notify notify listeners?
      *
      * @see #getDefaultSeriesVisibleInLegend()
      */
-    public void setDefaultSeriesVisibleInLegend(boolean visible, 
+    public void setDefaultSeriesVisibleInLegend(boolean visible,
             boolean notify) {
         this.defaultSeriesVisibleInLegend = visible;
         if (notify) {
@@ -738,17 +820,16 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // PAINT
-
     /**
-     * Returns the paint used to fill data items as they are drawn.
-     * (this is typically the same for an entire series).
+     * Returns the paint used to fill data items as they are drawn. (this is
+     * typically the same for an entire series).
      * <p>
      * The default implementation passes control to the
-     * {@code lookupSeriesPaint()} method. You can override this method
-     * if you require different behaviour.
+     * {@code lookupSeriesPaint()} method. You can override this method if you
+     * require different behaviour.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The paint (never {@code null}).
      */
@@ -759,7 +840,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the paint used to fill an item drawn by the renderer.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return The paint (never {@code null}).
      *
@@ -785,22 +866,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the paint used to fill an item drawn by the renderer.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return The paint (possibly {@code null}).
      *
      * @see #setSeriesPaint(int, Paint)
      */
     public Paint getSeriesPaint(int series) {
-        return this.paintList.getPaint(series);
+        return (series < this.paintList.size()) ? this.paintList.get(series) : null;
     }
 
     /**
      * Sets the paint used for a series and sends a {@link RendererChangeEvent}
      * to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param paint  the paint ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param paint the paint ({@code null} permitted).
      *
      * @see #getSeriesPaint(int)
      */
@@ -812,14 +893,16 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the paint used for a series and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index.
-     * @param paint  the paint ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index.
+     * @param paint the paint ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesPaint(int)
      */
     public void setSeriesPaint(int series, Paint paint, boolean notify) {
-        this.paintList.setPaint(series, paint);
+        ArrayUtils.checkArraySize(this.paintList, series);
+        
+        this.paintList.set(series, paint);
         if (notify) {
             fireChangeEvent();
         }
@@ -829,7 +912,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Clears the series paint settings for this renderer and, if requested,
      * sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param notify  notify listeners?
+     * @param notify notify listeners?
      *
      * @since 1.0.11
      */
@@ -855,7 +938,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default paint and sends a {@link RendererChangeEvent} to all
      * registered listeners.
      *
-     * @param paint  the paint ({@code null} not permitted).
+     * @param paint the paint ({@code null} not permitted).
      *
      * @see #getDefaultPaint()
      */
@@ -868,8 +951,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default paint and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param paint  the paint ({@code null} not permitted).
-     * @param notify  notify listeners?
+     * @param paint the paint ({@code null} not permitted).
+     * @param notify notify listeners?
      *
      * @see #getDefaultPaint()
      */
@@ -898,7 +981,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the flag that controls whether or not the series paint list is
      * automatically populated when {@link #lookupSeriesPaint(int)} is called.
      *
-     * @param auto  the new flag value.
+     * @param auto the new flag value.
      *
      * @since 1.0.6
      *
@@ -909,15 +992,13 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     //// FILL PAINT //////////////////////////////////////////////////////////
-
     /**
-     * Returns the paint used to fill data items as they are drawn.  The
-     * default implementation passes control to the
-     * {@link #lookupSeriesFillPaint(int)} method - you can override this
-     * method if you require different behaviour.
+     * Returns the paint used to fill data items as they are drawn. The default
+     * implementation passes control to the {@link #lookupSeriesFillPaint(int)}
+     * method - you can override this method if you require different behaviour.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The paint (never {@code null}).
      */
@@ -928,7 +1009,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the paint used to fill an item drawn by the renderer.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The paint (never {@code null}).
      *
@@ -954,22 +1035,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the paint used to fill an item drawn by the renderer.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The paint (never {@code null}).
      *
      * @see #setSeriesFillPaint(int, Paint)
      */
     public Paint getSeriesFillPaint(int series) {
-        return this.fillPaintList.getPaint(series);
+        return (series < this.fillPaintList.size()) ? this.fillPaintList.get(series) : null;
     }
 
     /**
      * Sets the paint used for a series fill and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param paint  the paint ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param paint the paint ({@code null} permitted).
      *
      * @see #getSeriesFillPaint(int)
      */
@@ -978,17 +1059,18 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the paint used to fill a series and, if requested,
-     * sends a {@link RendererChangeEvent} to all registered listeners.
+     * Sets the paint used to fill a series and, if requested, sends a
+     * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param paint  the paint ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index (zero-based).
+     * @param paint the paint ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesFillPaint(int)
      */
     public void setSeriesFillPaint(int series, Paint paint, boolean notify) {
-        this.fillPaintList.setPaint(series, paint);
+        ArrayUtils.checkArraySize(fillPaintList, series);
+        this.fillPaintList.set(series, paint);
         if (notify) {
             fireChangeEvent();
         }
@@ -1009,7 +1091,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default fill paint and sends a {@link RendererChangeEvent} to
      * all registered listeners.
      *
-     * @param paint  the paint ({@code null} not permitted).
+     * @param paint the paint ({@code null} not permitted).
      *
      * @see #getDefaultFillPaint()
      */
@@ -1022,8 +1104,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default fill paint and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param paint  the paint ({@code null} not permitted).
-     * @param notify  notify listeners?
+     * @param paint the paint ({@code null} not permitted).
+     * @param notify notify listeners?
      *
      * @see #getDefaultFillPaint()
      */
@@ -1055,7 +1137,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * automatically populated when {@link #lookupSeriesFillPaint(int)} is
      * called.
      *
-     * @param auto  the new flag value.
+     * @param auto the new flag value.
      *
      * @since 1.0.6
      *
@@ -1066,17 +1148,16 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // OUTLINE PAINT //////////////////////////////////////////////////////////
-
     /**
-     * Returns the paint used to outline data items as they are drawn.
-     * (this is typically the same for an entire series).
+     * Returns the paint used to outline data items as they are drawn. (this is
+     * typically the same for an entire series).
      * <p>
      * The default implementation passes control to the
-     * {@link #lookupSeriesOutlinePaint} method.  You can override this method
-     * if you require different behaviour.
+     * {@link #lookupSeriesOutlinePaint} method. You can override this method if
+     * you require different behaviour.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The paint (never {@code null}).
      */
@@ -1087,7 +1168,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the paint used to outline an item drawn by the renderer.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The paint (never {@code null}).
      *
@@ -1113,22 +1194,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the paint used to outline an item drawn by the renderer.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The paint (possibly {@code null}).
      *
      * @see #setSeriesOutlinePaint(int, Paint)
      */
     public Paint getSeriesOutlinePaint(int series) {
-        return this.outlinePaintList.getPaint(series);
+        return (series < this.outlinePaintList.size()) ? this.outlinePaintList.get(series) : null;
     }
 
     /**
      * Sets the paint used for a series outline and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param paint  the paint ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param paint the paint ({@code null} permitted).
      *
      * @see #getSeriesOutlinePaint(int)
      */
@@ -1140,14 +1221,17 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the paint used to draw the outline for a series and, if requested,
      * sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param paint  the paint ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index (zero-based).
+     * @param paint the paint ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesOutlinePaint(int)
      */
     public void setSeriesOutlinePaint(int series, Paint paint, boolean notify) {
-        this.outlinePaintList.setPaint(series, paint);
+        
+        ArrayUtils.checkArraySize(outlinePaintList, series);
+        
+        this.outlinePaintList.set(series, paint);
         if (notify) {
             fireChangeEvent();
         }
@@ -1168,7 +1252,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default outline paint and sends a {@link RendererChangeEvent} to
      * all registered listeners.
      *
-     * @param paint  the paint ({@code null} not permitted).
+     * @param paint the paint ({@code null} not permitted).
      *
      * @see #getDefaultOutlinePaint()
      */
@@ -1181,8 +1265,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default outline paint and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param paint  the paint ({@code null} not permitted).
-     * @param notify  notify listeners?
+     * @param paint the paint ({@code null} not permitted).
+     * @param notify notify listeners?
      *
      * @see #getDefaultOutlinePaint()
      */
@@ -1211,10 +1295,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
 
     /**
      * Sets the flag that controls whether or not the series outline paint list
-     * is automatically populated when {@link #lookupSeriesOutlinePaint(int)}
-     * is called.
+     * is automatically populated when {@link #lookupSeriesOutlinePaint(int)} is
+     * called.
      *
-     * @param auto  the new flag value.
+     * @param auto the new flag value.
      *
      * @since 1.0.6
      *
@@ -1225,15 +1309,14 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // STROKE
-
     /**
      * Returns the stroke used to draw data items.
      * <p>
      * The default implementation passes control to the getSeriesStroke method.
      * You can override this method if you require different behaviour.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The stroke (never {@code null}).
      */
@@ -1244,7 +1327,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the stroke used to draw the items in a series.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The stroke (never {@code null}).
      *
@@ -1270,22 +1353,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the stroke used to draw the items in a series.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The stroke (possibly {@code null}).
      *
      * @see #setSeriesStroke(int, Stroke)
      */
     public Stroke getSeriesStroke(int series) {
-        return this.strokeList.getStroke(series);
+        return (series < this.strokeList.size()) ? this.strokeList.get(series) : null;
     }
 
     /**
      * Sets the stroke used for a series and sends a {@link RendererChangeEvent}
      * to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param stroke  the stroke ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param stroke the stroke ({@code null} permitted).
      *
      * @see #getSeriesStroke(int)
      */
@@ -1297,14 +1380,16 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the stroke for a series and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param stroke  the stroke ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index (zero-based).
+     * @param stroke the stroke ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesStroke(int)
      */
     public void setSeriesStroke(int series, Stroke stroke, boolean notify) {
-        this.strokeList.setStroke(series, stroke);
+        ArrayUtils.checkArraySize(this.strokeList, series);
+        
+        this.strokeList.set(series, stroke);
         if (notify) {
             fireChangeEvent();
         }
@@ -1314,7 +1399,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Clears the series stroke settings for this renderer and, if requested,
      * sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param notify  notify listeners?
+     * @param notify notify listeners?
      *
      * @since 1.0.11
      */
@@ -1340,7 +1425,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default stroke and sends a {@link RendererChangeEvent} to all
      * registered listeners.
      *
-     * @param stroke  the stroke ({@code null} not permitted).
+     * @param stroke the stroke ({@code null} not permitted).
      *
      * @see #getDefaultStroke()
      */
@@ -1353,8 +1438,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the base stroke and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param stroke  the stroke ({@code null} not permitted).
-     * @param notify  notify listeners?
+     * @param stroke the stroke ({@code null} not permitted).
+     * @param notify notify listeners?
      *
      * @see #getDefaultStroke()
      */
@@ -1384,7 +1469,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the flag that controls whether or not the series stroke list is
      * automatically populated when {@link #lookupSeriesStroke(int)} is called.
      *
-     * @param auto  the new flag value.
+     * @param auto the new flag value.
      *
      * @since 1.0.6
      *
@@ -1395,15 +1480,13 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // OUTLINE STROKE
-
     /**
-     * Returns the stroke used to outline data items.  The default
-     * implementation passes control to the
-     * {@link #lookupSeriesOutlineStroke(int)} method. You can override this
-     * method if you require different behaviour.
+     * Returns the stroke used to outline data items. The default implementation
+     * passes control to the {@link #lookupSeriesOutlineStroke(int)} method. You
+     * can override this method if you require different behaviour.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The stroke (never {@code null}).
      */
@@ -1414,7 +1497,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the stroke used to outline the items in a series.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The stroke (never {@code null}).
      *
@@ -1440,22 +1523,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the stroke used to outline the items in a series.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The stroke (possibly {@code null}).
      *
      * @see #setSeriesOutlineStroke(int, Stroke)
      */
     public Stroke getSeriesOutlineStroke(int series) {
-        return this.outlineStrokeList.getStroke(series);
+        return (series < this.outlineStrokeList.size()) ? this.outlineStrokeList.get(series) : null;
     }
 
     /**
      * Sets the outline stroke used for a series and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param stroke  the stroke ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param stroke the stroke ({@code null} permitted).
      *
      * @see #getSeriesOutlineStroke(int)
      */
@@ -1467,15 +1550,18 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the outline stroke for a series and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index.
-     * @param stroke  the stroke ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index.
+     * @param stroke the stroke ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesOutlineStroke(int)
      */
     public void setSeriesOutlineStroke(int series, Stroke stroke,
-                                       boolean notify) {
-        this.outlineStrokeList.setStroke(series, stroke);
+            boolean notify) {
+        
+        ArrayUtils.checkArraySize(this.outlineStrokeList, series);
+        
+        this.outlineStrokeList.set(series, stroke);
         if (notify) {
             fireChangeEvent();
         }
@@ -1493,10 +1579,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default outline stroke and sends a {@link RendererChangeEvent} 
+     * Sets the default outline stroke and sends a {@link RendererChangeEvent}
      * to all registered listeners.
      *
-     * @param stroke  the stroke ({@code null} not permitted).
+     * @param stroke the stroke ({@code null} not permitted).
      *
      * @see #getDefaultOutlineStroke()
      */
@@ -1508,9 +1594,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default outline stroke and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param stroke  the stroke ({@code null} not permitted).
-     * @param notify  a flag that controls whether or not listeners are
-     *                notified.
+     * @param stroke the stroke ({@code null} not permitted).
+     * @param notify a flag that controls whether or not listeners are notified.
      *
      * @see #getDefaultOutlineStroke()
      */
@@ -1542,7 +1627,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * is automatically populated when {@link #lookupSeriesOutlineStroke(int)}
      * is called.
      *
-     * @param auto  the new flag value.
+     * @param auto the new flag value.
      *
      * @since 1.0.6
      *
@@ -1553,16 +1638,15 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // SHAPE
-
     /**
      * Returns a shape used to represent a data item.
      * <p>
-     * The default implementation passes control to the 
-     * {@link #lookupSeriesShape(int)} method. You can override this method if 
+     * The default implementation passes control to the
+     * {@link #lookupSeriesShape(int)} method. You can override this method if
      * you require different behaviour.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The shape (never {@code null}).
      */
@@ -1573,7 +1657,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns a shape used to represent the items in a series.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The shape (never {@code null}).
      *
@@ -1599,22 +1683,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns a shape used to represent the items in a series.
      *
-     * @param series  the series (zero-based index).
+     * @param series the series (zero-based index).
      *
      * @return The shape (possibly {@code null}).
      *
      * @see #setSeriesShape(int, Shape)
      */
     public Shape getSeriesShape(int series) {
-        return this.shapeList.getShape(series);
+        return (series < this.shapeList.size()) ? this.shapeList.get(series) : null;
     }
 
     /**
      * Sets the shape used for a series and sends a {@link RendererChangeEvent}
      * to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param shape  the shape ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param shape the shape ({@code null} permitted).
      *
      * @see #getSeriesShape(int)
      */
@@ -1626,14 +1710,16 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the shape for a series and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero based).
-     * @param shape  the shape ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index (zero based).
+     * @param shape the shape ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesShape(int)
      */
     public void setSeriesShape(int series, Shape shape, boolean notify) {
-        this.shapeList.setShape(series, shape);
+        ArrayUtils.checkArraySize(this.shapeList, series);
+        
+        this.shapeList.set(series, shape);
         if (notify) {
             fireChangeEvent();
         }
@@ -1654,7 +1740,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default shape and sends a {@link RendererChangeEvent} to all
      * registered listeners.
      *
-     * @param shape  the shape ({@code null} not permitted).
+     * @param shape the shape ({@code null} not permitted).
      *
      * @see #getDefaultShape()
      */
@@ -1667,8 +1753,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default shape and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param shape  the shape ({@code null} not permitted).
-     * @param notify  notify listeners?
+     * @param shape the shape ({@code null} not permitted).
+     * @param notify notify listeners?
      *
      * @see #getDefaultShape()
      */
@@ -1698,7 +1784,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the flag that controls whether or not the series shape list is
      * automatically populated when {@link #lookupSeriesShape(int)} is called.
      *
-     * @param auto  the new flag value.
+     * @param auto the new flag value.
      *
      * @since 1.0.6
      *
@@ -1709,13 +1795,12 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // ITEM LABEL VISIBILITY...
-
     /**
-     * Returns {@code true} if an item label is visible, and
-     * {@code false} otherwise.
+     * Returns {@code true} if an item label is visible, and {@code false}
+     * otherwise.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return A boolean.
      */
@@ -1724,27 +1809,30 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Returns {@code true} if the item labels for a series are visible,
-     * and {@code false} otherwise.
+     * Returns {@code true} if the item labels for a series are visible, and
+     * {@code false} otherwise.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return A boolean.
      */
-    public boolean isSeriesItemLabelsVisible(int series) {
-        Boolean b = this.itemLabelsVisibleList.getBoolean(series);
-        if (b == null) {
-            return this.defaultItemLabelsVisible;
+    public boolean isSeriesItemLabelsVisible(int series) {        
+        boolean result = this.defaultItemLabelsVisible;
+        if (series < itemLabelsVisibleList.size()) {
+            Boolean b = this.itemLabelsVisibleList.get(series);
+            if (b != null) {
+                result = b;
+            }
         }
-        return b;
+        return result;
     }
 
     /**
      * Sets a flag that controls the visibility of the item labels for a series,
      * and sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param visible  the flag.
+     * @param series the series index (zero-based).
+     * @param visible the flag.
      */
     public void setSeriesItemLabelsVisible(int series, boolean visible) {
         setSeriesItemLabelsVisible(series, Boolean.valueOf(visible));
@@ -1754,8 +1842,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the visibility of the item labels for a series and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param visible  the flag ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param visible the flag ({@code null} permitted).
      */
     public void setSeriesItemLabelsVisible(int series, Boolean visible) {
         setSeriesItemLabelsVisible(series, visible, true);
@@ -1765,22 +1853,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the visibility of item labels for a series and, if requested, sends
      * a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param visible  the visible flag.
-     * @param notify  a flag that controls whether or not listeners are
-     *                notified.
+     * @param series the series index (zero-based).
+     * @param visible the visible flag.
+     * @param notify a flag that controls whether or not listeners are notified.
      */
     public void setSeriesItemLabelsVisible(int series, Boolean visible,
-                                           boolean notify) {
-        this.itemLabelsVisibleList.setBoolean(series, visible);
+            boolean notify) {
+        ArrayUtils.checkArraySize(itemLabelsVisibleList, series);
+        this.itemLabelsVisibleList.set(series, visible);
         if (notify) {
             fireChangeEvent();
         }
     }
 
     /**
-     * Returns the base setting for item label visibility.  A {@code null}
-     * result should be interpreted as equivalent to {@code Boolean.FALSE}.
+     * Returns the base setting for item label visibility. A {@code null} result
+     * should be interpreted as equivalent to {@code Boolean.FALSE}.
      *
      * @return A flag (possibly {@code null}).
      *
@@ -1794,7 +1882,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the base flag that controls whether or not item labels are visible,
      * and sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param visible  the flag.
+     * @param visible the flag.
      *
      * @see #getDefaultItemLabelsVisible()
      */
@@ -1806,12 +1894,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the base visibility for item labels and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param visible  the flag ({@code null} is permitted, and viewed
-     *     as equivalent to {@code Boolean.FALSE}).
-     * @param notify  a flag that controls whether or not listeners are
-     *                notified.
+     * @param visible the flag ({@code null} is permitted, and viewed as
+     * equivalent to {@code Boolean.FALSE}).
+     * @param notify a flag that controls whether or not listeners are notified.
      *
-     * @see #getDefaultItemLabelsVisible() 
+     * @see #getDefaultItemLabelsVisible()
      */
     public void setDefaultItemLabelsVisible(boolean visible, boolean notify) {
         this.defaultItemLabelsVisible = visible;
@@ -1821,12 +1908,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     //// ITEM LABEL FONT //////////////////////////////////////////////////////
-
     /**
      * Returns the font for an item label.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The font (never {@code null}).
      */
@@ -1841,7 +1927,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the font for all the item labels in a series.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return The font (possibly {@code null}).
      *
@@ -1855,8 +1941,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the item label font for a series and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param font  the font ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param font the font ({@code null} permitted).
      *
      * @see #getSeriesItemLabelFont(int)
      */
@@ -1868,10 +1954,9 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the item label font for a series and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero based).
-     * @param font  the font ({@code null} permitted).
-     * @param notify  a flag that controls whether or not listeners are
-     *                notified.
+     * @param series the series index (zero based).
+     * @param font the font ({@code null} permitted).
+     * @param notify a flag that controls whether or not listeners are notified.
      *
      * @see #getSeriesItemLabelFont(int)
      */
@@ -1895,10 +1980,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default item label font and sends a {@link RendererChangeEvent} 
+     * Sets the default item label font and sends a {@link RendererChangeEvent}
      * to all registered listeners.
      *
-     * @param font  the font ({@code null} not permitted).
+     * @param font the font ({@code null} not permitted).
      *
      * @see #getDefaultItemLabelFont()
      */
@@ -1911,9 +1996,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the base item label font and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param font  the font ({@code null} not permitted).
-     * @param notify  a flag that controls whether or not listeners are
-     *                notified.
+     * @param font the font ({@code null} not permitted).
+     * @param notify a flag that controls whether or not listeners are notified.
      *
      * @see #getDefaultItemLabelFont()
      */
@@ -1925,12 +2009,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     //// ITEM LABEL PAINT  ////////////////////////////////////////////////////
-
     /**
      * Returns the paint used to draw an item label.
      *
-     * @param row  the row index (zero based).
-     * @param column  the column index (zero based).
+     * @param row the row index (zero based).
+     * @param column the column index (zero based).
      *
      * @return The paint (never {@code null}).
      */
@@ -1945,22 +2028,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the paint used to draw the item labels for a series.
      *
-     * @param series  the series index (zero based).
+     * @param series the series index (zero based).
      *
      * @return The paint (possibly {@code null}).
      *
      * @see #setSeriesItemLabelPaint(int, Paint)
      */
     public Paint getSeriesItemLabelPaint(int series) {
-        return this.itemLabelPaintList.getPaint(series);
+        return this.itemLabelPaintList.get(series);
     }
 
     /**
      * Sets the item label paint for a series and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series (zero based index).
-     * @param paint  the paint ({@code null} permitted).
+     * @param series the series (zero based index).
+     * @param paint the paint ({@code null} permitted).
      *
      * @see #getSeriesItemLabelPaint(int)
      */
@@ -1972,16 +2055,16 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the item label paint for a series and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero based).
-     * @param paint  the paint ({@code null} permitted).
-     * @param notify  a flag that controls whether or not listeners are
-     *                notified.
+     * @param series the series index (zero based).
+     * @param paint the paint ({@code null} permitted).
+     * @param notify a flag that controls whether or not listeners are notified.
      *
      * @see #getSeriesItemLabelPaint(int)
      */
     public void setSeriesItemLabelPaint(int series, Paint paint,
-                                        boolean notify) {
-        this.itemLabelPaintList.setPaint(series, paint);
+            boolean notify) {
+        ArrayUtils.checkArraySize(itemLabelPaintList, series);
+        this.itemLabelPaintList.set(series, paint);
         if (notify) {
             fireChangeEvent();
         }
@@ -2002,7 +2085,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default item label paint and sends a {@link RendererChangeEvent}
      * to all registered listeners.
      *
-     * @param paint  the paint ({@code null} not permitted).
+     * @param paint the paint ({@code null} not permitted).
      *
      * @see #getDefaultItemLabelPaint()
      */
@@ -2015,9 +2098,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default item label paint and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners..
      *
-     * @param paint  the paint ({@code null} not permitted).
-     * @param notify  a flag that controls whether or not listeners are
-     *                notified.
+     * @param paint the paint ({@code null} not permitted).
+     * @param notify a flag that controls whether or not listeners are notified.
      *
      * @see #getDefaultItemLabelPaint()
      */
@@ -2030,12 +2112,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // POSITIVE ITEM LABEL POSITION...
-
     /**
      * Returns the item label position for positive values.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The item label position (never {@code null}).
      *
@@ -2048,7 +2129,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the item label position for all positive values in a series.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return The item label position (never {@code null}).
      *
@@ -2056,8 +2137,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      */
     public ItemLabelPosition getSeriesPositiveItemLabelPosition(int series) {
         // otherwise look up the position table
-        ItemLabelPosition position = (ItemLabelPosition)
-            this.positiveItemLabelPositionMap.get(series);
+        ItemLabelPosition position = (ItemLabelPosition) this.positiveItemLabelPositionMap.get(series);
         if (position == null) {
             position = this.defaultPositiveItemLabelPosition;
         }
@@ -2068,13 +2148,13 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the item label position for all positive values in a series and
      * sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param position  the position ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param position the position ({@code null} permitted).
      *
      * @see #getSeriesPositiveItemLabelPosition(int)
      */
     public void setSeriesPositiveItemLabelPosition(int series,
-                                                   ItemLabelPosition position) {
+            ItemLabelPosition position) {
         setSeriesPositiveItemLabelPosition(series, position, true);
     }
 
@@ -2083,9 +2163,9 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * requested) sends a {@link RendererChangeEvent} to all registered
      * listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param position  the position ({@code null} permitted).
-     * @param notify  notify registered listeners?
+     * @param series the series index (zero-based).
+     * @param position the position ({@code null} permitted).
+     * @param notify notify registered listeners?
      *
      * @see #getSeriesPositiveItemLabelPosition(int)
      */
@@ -2111,7 +2191,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Sets the default positive item label position.
      *
-     * @param position  the position ({@code null} not permitted).
+     * @param position the position ({@code null} not permitted).
      *
      * @see #getDefaultPositiveItemLabelPosition()
      */
@@ -2125,8 +2205,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default positive item label position and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param position  the position ({@code null} not permitted).
-     * @param notify  notify registered listeners?
+     * @param position the position ({@code null} not permitted).
+     * @param notify notify registered listeners?
      *
      * @see #getDefaultPositiveItemLabelPosition()
      */
@@ -2140,14 +2220,13 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     // NEGATIVE ITEM LABEL POSITION...
-
     /**
-     * Returns the item label position for negative values.  This method can be
+     * Returns the item label position for negative values. This method can be
      * overridden to provide customisation of the item label position for
      * individual data items.
      *
-     * @param row  the row (or series) index (zero-based).
-     * @param column  the column (or category) index (zero-based).
+     * @param row the row (or series) index (zero-based).
+     * @param column the column (or category) index (zero-based).
      *
      * @return The item label position (never {@code null}).
      *
@@ -2160,7 +2239,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Returns the item label position for all negative values in a series.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return The item label position (never {@code null}).
      *
@@ -2168,7 +2247,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      */
     public ItemLabelPosition getSeriesNegativeItemLabelPosition(int series) {
         // otherwise look up the position list
-        ItemLabelPosition position 
+        ItemLabelPosition position
                 = this.negativeItemLabelPositionMap.get(series);
         if (position == null) {
             position = this.defaultNegativeItemLabelPosition;
@@ -2180,13 +2259,13 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the item label position for negative values in a series and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param position  the position ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param position the position ({@code null} permitted).
      *
      * @see #getSeriesNegativeItemLabelPosition(int)
      */
     public void setSeriesNegativeItemLabelPosition(int series,
-                                                   ItemLabelPosition position) {
+            ItemLabelPosition position) {
         setSeriesNegativeItemLabelPosition(series, position, true);
     }
 
@@ -2195,9 +2274,9 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * requested) sends a {@link RendererChangeEvent} to all registered
      * listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param position  the position ({@code null} permitted).
-     * @param notify  notify registered listeners?
+     * @param series the series index (zero-based).
+     * @param position the position ({@code null} permitted).
+     * @param notify notify registered listeners?
      *
      * @see #getSeriesNegativeItemLabelPosition(int)
      */
@@ -2224,7 +2303,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default item label position for negative values and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param position  the position ({@code null} not permitted).
+     * @param position the position ({@code null} not permitted).
      *
      * @see #getDefaultNegativeItemLabelPosition()
      */
@@ -2237,8 +2316,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default negative item label position and, if requested, sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param position  the position ({@code null} not permitted).
-     * @param notify  notify registered listeners?
+     * @param position the position ({@code null} not permitted).
+     * @param notify notify registered listeners?
      *
      * @see #getDefaultNegativeItemLabelPosition()
      */
@@ -2265,7 +2344,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Sets the item label anchor offset.
      *
-     * @param offset  the offset.
+     * @param offset the offset.
      *
      * @see #getItemLabelAnchorOffset()
      */
@@ -2275,11 +2354,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Returns a boolean that indicates whether or not the specified item
-     * should have a chart entity created for it.
+     * Returns a boolean that indicates whether or not the specified item should
+     * have a chart entity created for it.
      *
-     * @param series  the series index.
-     * @param item  the item index.
+     * @param series the series index.
+     * @param item the item index.
      *
      * @return A boolean.
      */
@@ -2293,25 +2372,24 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Returns the flag that controls whether entities are created for a
-     * series.
+     * Returns the flag that controls whether entities are created for a series.
      *
-     * @param series  the series index (zero-based).
+     * @param series the series index (zero-based).
      *
      * @return The flag (possibly {@code null}).
      *
      * @see #setSeriesCreateEntities(int, Boolean)
      */
     public Boolean getSeriesCreateEntities(int series) {
-        return this.createEntitiesList.getBoolean(series);
+        return this.createEntitiesList.get(series);
     }
 
     /**
      * Sets the flag that controls whether entities are created for a series,
      * and sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index (zero-based).
-     * @param create  the flag ({@code null} permitted).
+     * @param series the series index (zero-based).
+     * @param create the flag ({@code null} permitted).
      *
      * @see #getSeriesCreateEntities(int)
      */
@@ -2324,15 +2402,16 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * and, if requested, sends a {@link RendererChangeEvent} to all registered
      * listeners.
      *
-     * @param series  the series index.
-     * @param create  the flag ({@code null} permitted).
-     * @param notify  notify listeners?
+     * @param series the series index.
+     * @param create the flag ({@code null} permitted).
+     * @param notify notify listeners?
      *
      * @see #getSeriesCreateEntities(int)
      */
     public void setSeriesCreateEntities(int series, Boolean create,
-                                        boolean notify) {
-        this.createEntitiesList.setBoolean(series, create);
+            boolean notify) {
+        ArrayUtils.checkArraySize(createEntitiesList, series);
+        this.createEntitiesList.set(series, create);
         if (notify) {
             fireChangeEvent();
         }
@@ -2350,11 +2429,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default flag that controls whether entities are created
-     * for a series, and sends a {@link RendererChangeEvent}
-     * to all registered listeners.
+     * Sets the default flag that controls whether entities are created for a
+     * series, and sends a {@link RendererChangeEvent} to all registered
+     * listeners.
      *
-     * @param create  the flag.
+     * @param create the flag.
      *
      * @see #getDefaultCreateEntities()
      */
@@ -2364,12 +2443,12 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default flag that controls whether entities are created and,
-     * if requested, sends a {@link RendererChangeEvent} to all registered
+     * Sets the default flag that controls whether entities are created and, if
+     * requested, sends a {@link RendererChangeEvent} to all registered
      * listeners.
      *
-     * @param create  the visibility.
-     * @param notify  notify listeners?
+     * @param create the visibility.
+     * @param notify notify listeners?
      *
      * @see #getDefaultCreateEntities()
      */
@@ -2381,8 +2460,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Returns the radius of the circle used for the default entity area
-     * when no area is specified.
+     * Returns the radius of the circle used for the default entity area when no
+     * area is specified.
      *
      * @return A radius.
      *
@@ -2393,10 +2472,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the radius of the circle used for the default entity area
-     * when no area is specified.
+     * Sets the radius of the circle used for the default entity area when no
+     * area is specified.
      *
-     * @param radius  the radius.
+     * @param radius the radius.
      *
      * @see #getDefaultEntityRadius()
      */
@@ -2407,7 +2486,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Performs a lookup for the legend shape.
      *
-     * @param series  the series index.
+     * @param series the series index.
      *
      * @return The shape (possibly {@code null}).
      *
@@ -2428,7 +2507,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Returns the legend shape defined for the specified series (possibly
      * {@code null}).
      *
-     * @param series  the series index.
+     * @param series the series index.
      *
      * @return The shape (possibly {@code null}).
      *
@@ -2437,20 +2516,21 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * @since 1.0.11
      */
     public Shape getLegendShape(int series) {
-        return this.legendShapeList.getShape(series);
+        return (series < legendShapeList.size()) ? this.legendShapeList.get(series) : null;
     }
 
     /**
      * Sets the shape used for the legend item for the specified series, and
      * sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index.
-     * @param shape  the shape ({@code null} permitted).
+     * @param series the series index.
+     * @param shape the shape ({@code null} permitted).
      *
      * @since 1.0.11
      */
     public void setLegendShape(int series, Shape shape) {
-        this.legendShapeList.setShape(series, shape);
+        ArrayUtils.checkArraySize(legendShapeList, series);
+        this.legendShapeList.set(series, shape);
         fireChangeEvent();
     }
 
@@ -2466,10 +2546,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default legend shape and sends a
-     * {@link RendererChangeEvent} to all registered listeners.
+     * Sets the default legend shape and sends a {@link RendererChangeEvent} to
+     * all registered listeners.
      *
-     * @param shape  the shape ({@code null} permitted).
+     * @param shape the shape ({@code null} permitted).
      *
      * @since 1.0.11
      */
@@ -2479,11 +2559,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Returns the flag that controls whether or not the legend shape is
-     * treated as a line when creating legend items.
-     * 
+     * Returns the flag that controls whether or not the legend shape is treated
+     * as a line when creating legend items.
+     *
      * @return A boolean.
-     * 
+     *
      * @since 1.0.14
      */
     protected boolean getTreatLegendShapeAsLine() {
@@ -2491,10 +2571,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the flag that controls whether or not the legend shape is
-     * treated as a line when creating legend items.
+     * Sets the flag that controls whether or not the legend shape is treated as
+     * a line when creating legend items.
      *
-     * @param treatAsLine  the new flag value.
+     * @param treatAsLine the new flag value.
      *
      * @since 1.0.14
      */
@@ -2508,7 +2588,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Performs a lookup for the legend text font.
      *
-     * @param series  the series index.
+     * @param series the series index.
      *
      * @return The font (possibly {@code null}).
      *
@@ -2526,7 +2606,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Returns the legend text font defined for the specified series (possibly
      * {@code null}).
      *
-     * @param series  the series index.
+     * @param series the series index.
      *
      * @return The font (possibly {@code null}).
      *
@@ -2542,8 +2622,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the font used for the legend text for the specified series, and
      * sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index.
-     * @param font  the font ({@code null} permitted).
+     * @param series the series index.
+     * @param font the font ({@code null} permitted).
      *
      * @since 1.0.11
      */
@@ -2564,10 +2644,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the default legend text font and sends a
-     * {@link RendererChangeEvent} to all registered listeners.
+     * Sets the default legend text font and sends a {@link RendererChangeEvent}
+     * to all registered listeners.
      *
-     * @param font  the font ({@code null} permitted).
+     * @param font the font ({@code null} permitted).
      *
      * @since 1.0.11
      */
@@ -2580,7 +2660,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Performs a lookup for the legend text paint.
      *
-     * @param series  the series index.
+     * @param series the series index.
      *
      * @return The paint (possibly {@code null}).
      *
@@ -2598,7 +2678,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Returns the legend text paint defined for the specified series (possibly
      * {@code null}).
      *
-     * @param series  the series index.
+     * @param series the series index.
      *
      * @return The paint (possibly {@code null}).
      *
@@ -2607,20 +2687,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * @since 1.0.11
      */
     public Paint getLegendTextPaint(int series) {
-        return this.legendTextPaint.getPaint(series);
+        return (series < this.legendTextPaint.size()) ? this.legendTextPaint.get(series) : null;
     }
 
     /**
      * Sets the paint used for the legend text for the specified series, and
      * sends a {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param series  the series index.
-     * @param paint  the paint ({@code null} permitted).
+     * @param series the series index.
+     * @param paint the paint ({@code null} permitted).
      *
      * @since 1.0.11
      */
     public void setLegendTextPaint(int series, Paint paint) {
-        this.legendTextPaint.setPaint(series, paint);
+        ArrayUtils.checkArraySize(legendTextPaint, series);
+        
+        this.legendTextPaint.set(series, paint);
         fireChangeEvent();
     }
 
@@ -2639,7 +2721,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      * Sets the default legend text paint and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param paint  the paint ({@code null} permitted).
+     * @param paint the paint ({@code null} permitted).
      *
      * @since 1.0.11
      */
@@ -2649,8 +2731,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Returns the flag that controls whether or not the data bounds reported
-     * by this renderer will exclude non-visible series.
+     * Returns the flag that controls whether or not the data bounds reported by
+     * this renderer will exclude non-visible series.
      *
      * @return A boolean.
      *
@@ -2661,11 +2743,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the flag that controls whether or not the data bounds reported
-     * by this renderer will exclude non-visible series and sends a
+     * Sets the flag that controls whether or not the data bounds reported by
+     * this renderer will exclude non-visible series and sends a
      * {@link RendererChangeEvent} to all registered listeners.
      *
-     * @param visibleOnly  include only visible series.
+     * @param visibleOnly include only visible series.
      *
      * @since 1.0.13
      */
@@ -2674,127 +2756,135 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
         notifyListeners(new RendererChangeEvent(this, true));
     }
 
-    /** The adjacent offset. */
+    /**
+     * The adjacent offset.
+     */
     private static final double ADJ = Math.cos(Math.PI / 6.0);
 
-    /** The opposite offset. */
+    /**
+     * The opposite offset.
+     */
     private static final double OPP = Math.sin(Math.PI / 6.0);
 
     /**
      * Calculates the item label anchor point.
      *
-     * @param anchor  the anchor.
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     * @param orientation  the plot orientation.
+     * @param anchor the anchor.
+     * @param x the x coordinate.
+     * @param y the y coordinate.
+     * @param orientation the plot orientation.
      *
      * @return The anchor point (never {@code null}).
      */
     protected Point2D calculateLabelAnchorPoint(ItemLabelAnchor anchor,
             double x, double y, PlotOrientation orientation) {
         Point2D result = null;
-        if (anchor == ItemLabelAnchor.CENTER) {
-            result = new Point2D.Double(x, y);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE1) {
-            result = new Point2D.Double(x + OPP * this.itemLabelAnchorOffset,
-                    y - ADJ * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE2) {
-            result = new Point2D.Double(x + ADJ * this.itemLabelAnchorOffset,
-                    y - OPP * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE3) {
-            result = new Point2D.Double(x + this.itemLabelAnchorOffset, y);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE4) {
-            result = new Point2D.Double(x + ADJ * this.itemLabelAnchorOffset,
-                    y + OPP * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE5) {
-            result = new Point2D.Double(x + OPP * this.itemLabelAnchorOffset,
-                    y + ADJ * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE6) {
-            result = new Point2D.Double(x, y + this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE7) {
-            result = new Point2D.Double(x - OPP * this.itemLabelAnchorOffset,
-                    y + ADJ * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE8) {
-            result = new Point2D.Double(x - ADJ * this.itemLabelAnchorOffset,
-                    y + OPP * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE9) {
-            result = new Point2D.Double(x - this.itemLabelAnchorOffset, y);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE10) {
-            result = new Point2D.Double(x - ADJ * this.itemLabelAnchorOffset,
-                    y - OPP * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE11) {
-            result = new Point2D.Double(x - OPP * this.itemLabelAnchorOffset,
-                    y - ADJ * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.INSIDE12) {
-            result = new Point2D.Double(x, y - this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE1) {
-            result = new Point2D.Double(
-                    x + 2.0 * OPP * this.itemLabelAnchorOffset,
-                    y - 2.0 * ADJ * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE2) {
-            result = new Point2D.Double(
-                    x + 2.0 * ADJ * this.itemLabelAnchorOffset,
-                    y - 2.0 * OPP * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE3) {
-            result = new Point2D.Double(x + 2.0 * this.itemLabelAnchorOffset,
-                    y);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE4) {
-            result = new Point2D.Double(
-                    x + 2.0 * ADJ * this.itemLabelAnchorOffset,
-                    y + 2.0 * OPP * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE5) {
-            result = new Point2D.Double(
-                    x + 2.0 * OPP * this.itemLabelAnchorOffset,
-                    y + 2.0 * ADJ * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE6) {
-            result = new Point2D.Double(x,
-                    y + 2.0 * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE7) {
-            result = new Point2D.Double(
-                    x - 2.0 * OPP * this.itemLabelAnchorOffset,
-                    y + 2.0 * ADJ * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE8) {
-            result = new Point2D.Double(
-                    x - 2.0 * ADJ * this.itemLabelAnchorOffset,
-                    y + 2.0 * OPP * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE9) {
-            result = new Point2D.Double(x - 2.0 * this.itemLabelAnchorOffset,
-                    y);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE10) {
-            result = new Point2D.Double(
-                    x - 2.0 * ADJ * this.itemLabelAnchorOffset,
-                    y - 2.0 * OPP * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE11) {
-            result = new Point2D.Double(
-                x - 2.0 * OPP * this.itemLabelAnchorOffset,
-                y - 2.0 * ADJ * this.itemLabelAnchorOffset);
-        }
-        else if (anchor == ItemLabelAnchor.OUTSIDE12) {
-            result = new Point2D.Double(x,
-                    y - 2.0 * this.itemLabelAnchorOffset);
+        if (null != anchor) switch (anchor) {
+            case CENTER:
+                result = new Point2D.Double(x, y);
+                break;
+            case INSIDE1:
+                result = new Point2D.Double(x + OPP * this.itemLabelAnchorOffset,
+                        y - ADJ * this.itemLabelAnchorOffset);
+                break;
+            case INSIDE2:
+                result = new Point2D.Double(x + ADJ * this.itemLabelAnchorOffset,
+                        y - OPP * this.itemLabelAnchorOffset);
+                break;
+            case INSIDE3:
+                result = new Point2D.Double(x + this.itemLabelAnchorOffset, y);
+                break;
+            case INSIDE4:
+                result = new Point2D.Double(x + ADJ * this.itemLabelAnchorOffset,
+                        y + OPP * this.itemLabelAnchorOffset);
+                break;
+            case INSIDE5:
+                result = new Point2D.Double(x + OPP * this.itemLabelAnchorOffset,
+                        y + ADJ * this.itemLabelAnchorOffset);
+                break;
+            case INSIDE6:
+                result = new Point2D.Double(x, y + this.itemLabelAnchorOffset);
+                break;
+            case INSIDE7:
+                result = new Point2D.Double(x - OPP * this.itemLabelAnchorOffset,
+                        y + ADJ * this.itemLabelAnchorOffset);
+                break;
+            case INSIDE8:
+                result = new Point2D.Double(x - ADJ * this.itemLabelAnchorOffset,
+                        y + OPP * this.itemLabelAnchorOffset);
+                break;
+            case INSIDE9:
+                result = new Point2D.Double(x - this.itemLabelAnchorOffset, y);
+                break;
+            case INSIDE10:
+                result = new Point2D.Double(x - ADJ * this.itemLabelAnchorOffset,
+                        y - OPP * this.itemLabelAnchorOffset);
+                break;
+            case INSIDE11:
+                result = new Point2D.Double(x - OPP * this.itemLabelAnchorOffset,
+                        y - ADJ * this.itemLabelAnchorOffset);
+                break;
+            case INSIDE12:
+                result = new Point2D.Double(x, y - this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE1:
+                result = new Point2D.Double(
+                        x + 2.0 * OPP * this.itemLabelAnchorOffset,
+                        y - 2.0 * ADJ * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE2:
+                result = new Point2D.Double(
+                        x + 2.0 * ADJ * this.itemLabelAnchorOffset,
+                        y - 2.0 * OPP * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE3:
+                result = new Point2D.Double(x + 2.0 * this.itemLabelAnchorOffset,
+                        y);
+                break;
+            case OUTSIDE4:
+                result = new Point2D.Double(
+                        x + 2.0 * ADJ * this.itemLabelAnchorOffset,
+                        y + 2.0 * OPP * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE5:
+                result = new Point2D.Double(
+                        x + 2.0 * OPP * this.itemLabelAnchorOffset,
+                        y + 2.0 * ADJ * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE6:
+                result = new Point2D.Double(x,
+                        y + 2.0 * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE7:
+                result = new Point2D.Double(
+                        x - 2.0 * OPP * this.itemLabelAnchorOffset,
+                        y + 2.0 * ADJ * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE8:
+                result = new Point2D.Double(
+                        x - 2.0 * ADJ * this.itemLabelAnchorOffset,
+                        y + 2.0 * OPP * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE9:
+                result = new Point2D.Double(x - 2.0 * this.itemLabelAnchorOffset,
+                        y);
+                break;
+            case OUTSIDE10:
+                result = new Point2D.Double(
+                        x - 2.0 * ADJ * this.itemLabelAnchorOffset,
+                        y - 2.0 * OPP * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE11:
+                result = new Point2D.Double(
+                        x - 2.0 * OPP * this.itemLabelAnchorOffset,
+                        y - 2.0 * ADJ * this.itemLabelAnchorOffset);
+                break;
+            case OUTSIDE12:
+                result = new Point2D.Double(x,
+                        y - 2.0 * this.itemLabelAnchorOffset);
+                break;
+            default:
+                break;
         }
         return result;
     }
@@ -2802,7 +2892,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Registers an object to receive notification of changes to the renderer.
      *
-     * @param listener  the listener ({@code null} not permitted).
+     * @param listener the listener ({@code null} not permitted).
      *
      * @see #removeChangeListener(RendererChangeListener)
      */
@@ -2812,10 +2902,10 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Deregisters an object so that it no longer receives
-     * notification of changes to the renderer.
+     * Deregisters an object so that it no longer receives notification of
+     * changes to the renderer.
      *
-     * @param listener  the object ({@code null} not permitted).
+     * @param listener the object ({@code null} not permitted).
      *
      * @see #addChangeListener(RendererChangeListener)
      */
@@ -2825,11 +2915,11 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     }
 
     /**
-     * Returns {@code true} if the specified object is registered with
-     * the dataset as a listener.  Most applications won't need to call this
-     * method, it exists mainly for use by unit testing code.
+     * Returns {@code true} if the specified object is registered with the
+     * dataset as a listener. Most applications won't need to call this method,
+     * it exists mainly for use by unit testing code.
      *
-     * @param listener  the listener.
+     * @param listener the listener.
      *
      * @return A boolean.
      */
@@ -2848,19 +2938,17 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
         // the commented out code would be better, but only if
         // RendererChangeEvent is immutable, which it isn't.  See if there is
         // a way to fix this...
-
         //if (this.event == null) {
         //    this.event = new RendererChangeEvent(this);
         //}
         //notifyListeners(this.event);
-
         notifyListeners(new RendererChangeEvent(this));
     }
 
     /**
      * Notifies all registered listeners that the renderer has been modified.
      *
-     * @param event  information about the change event.
+     * @param event information about the change event.
      */
     public void notifyListeners(RendererChangeEvent event) {
         Object[] ls = this.listenerList.getListenerList();
@@ -2874,7 +2962,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Tests this renderer for equality with another object.
      *
-     * @param obj  the object ({@code null} permitted).
+     * @param obj the object ({@code null} permitted).
      *
      * @return {@code true} or {@code false}.
      */
@@ -3013,7 +3101,7 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
                 that.defaultLegendShape)) {
             return false;
         }
-        if (!ObjectUtils.equal(this.legendTextFontMap, 
+        if (!ObjectUtils.equal(this.legendTextFontMap,
                 that.legendTextFontMap)) {
             return false;
         }
@@ -3077,8 +3165,8 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
      *
      * @return A clone.
      *
-     * @throws CloneNotSupportedException if some component of the renderer
-     *         does not support cloning.
+     * @throws CloneNotSupportedException if some component of the renderer does
+     * not support cloning.
      */
     @Override
     protected Object clone() throws CloneNotSupportedException {
@@ -3086,44 +3174,44 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
 
         if (this.seriesVisibleList != null) {
             clone.seriesVisibleList
-                    = (BooleanList) this.seriesVisibleList.clone();
+                    = new ArrayList<>(this.seriesVisibleList);
         }
 
         if (this.seriesVisibleInLegendList != null) {
             clone.seriesVisibleInLegendList
-                    = (BooleanList) this.seriesVisibleInLegendList.clone();
+                    = new ArrayList<>(this.seriesVisibleInLegendList);
         }
 
         // 'paint' : immutable, no need to clone reference
         if (this.paintList != null) {
-            clone.paintList = (PaintList) this.paintList.clone();
+            clone.paintList = new ArrayList<>(this.paintList);
         }
         // 'basePaint' : immutable, no need to clone reference
 
         if (this.fillPaintList != null) {
-            clone.fillPaintList = (PaintList) this.fillPaintList.clone();
+            clone.fillPaintList = new ArrayList<>(this.fillPaintList);
         }
         // 'outlinePaint' : immutable, no need to clone reference
         if (this.outlinePaintList != null) {
-            clone.outlinePaintList = (PaintList) this.outlinePaintList.clone();
+            clone.outlinePaintList = new ArrayList<>(this.outlinePaintList);
         }
         // 'baseOutlinePaint' : immutable, no need to clone reference
 
         // 'stroke' : immutable, no need to clone reference
         if (this.strokeList != null) {
-            clone.strokeList = (StrokeList) this.strokeList.clone();
+            clone.strokeList = new ArrayList<>(this.strokeList);
         }
         // 'baseStroke' : immutable, no need to clone reference
 
         // 'outlineStroke' : immutable, no need to clone reference
         if (this.outlineStrokeList != null) {
             clone.outlineStrokeList
-                = (StrokeList) this.outlineStrokeList.clone();
+                    = new ArrayList<>(this.outlineStrokeList);
         }
         // 'baseOutlineStroke' : immutable, no need to clone reference
 
         if (this.shapeList != null) {
-            clone.shapeList = (ShapeList) this.shapeList.clone();
+            clone.shapeList = new ArrayList<>(this.shapeList);
         }
         if (this.defaultShape != null) {
             clone.defaultShape = ShapeUtils.clone(this.defaultShape);
@@ -3132,51 +3220,51 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
         // 'itemLabelsVisible' : immutable, no need to clone reference
         if (this.itemLabelsVisibleList != null) {
             clone.itemLabelsVisibleList
-                = (BooleanList) this.itemLabelsVisibleList.clone();
+                    = new ArrayList<>(this.itemLabelsVisibleList);
         }
         // 'basePaint' : immutable, no need to clone reference
 
         // 'itemLabelFont' : immutable, no need to clone reference
         if (this.itemLabelFontMap != null) {
-            clone.itemLabelFontMap 
-                    = new HashMap<Integer, Font>(this.itemLabelFontMap);
+            clone.itemLabelFontMap
+                    = new HashMap<>(this.itemLabelFontMap);
         }
         // 'baseItemLabelFont' : immutable, no need to clone reference
 
         // 'itemLabelPaint' : immutable, no need to clone reference
         if (this.itemLabelPaintList != null) {
             clone.itemLabelPaintList
-                = (PaintList) this.itemLabelPaintList.clone();
+                    = new ArrayList<>(this.itemLabelPaintList);
         }
         // 'baseItemLabelPaint' : immutable, no need to clone reference
 
         if (this.positiveItemLabelPositionMap != null) {
-            clone.positiveItemLabelPositionMap 
-                    = new HashMap<Integer, ItemLabelPosition>(
-                    this.positiveItemLabelPositionMap);
+            clone.positiveItemLabelPositionMap
+                    = new HashMap<>(
+                            this.positiveItemLabelPositionMap);
         }
 
         if (this.negativeItemLabelPositionMap != null) {
-            clone.negativeItemLabelPositionMap 
-                    = new HashMap<Integer, ItemLabelPosition>(
-                    this.negativeItemLabelPositionMap);
+            clone.negativeItemLabelPositionMap
+                    = new HashMap<>(
+                            this.negativeItemLabelPositionMap);
         }
 
         if (this.createEntitiesList != null) {
             clone.createEntitiesList
-                    = (BooleanList) this.createEntitiesList.clone();
+                    = new ArrayList<>(this.createEntitiesList);
         }
 
         if (this.legendShapeList != null) {
-            clone.legendShapeList = (ShapeList) this.legendShapeList.clone();
+            clone.legendShapeList = new ArrayList<>(this.legendShapeList);
         }
         if (this.legendTextFontMap != null) {
             // Font objects are immutable so just shallow copy the map
-            clone.legendTextFontMap = new HashMap<Integer, Font>(
+            clone.legendTextFontMap = new HashMap<>(
                     this.legendTextFontMap);
         }
         if (this.legendTextPaint != null) {
-            clone.legendTextPaint = (PaintList) this.legendTextPaint.clone();
+            clone.legendTextPaint = new ArrayList<>(this.legendTextPaint);
         }
         clone.listenerList = new EventListenerList();
         clone.event = null;
@@ -3186,12 +3274,20 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Provides serialization support.
      *
-     * @param stream  the output stream.
+     * @param stream the output stream.
      *
-     * @throws IOException  if there is an I/O error.
+     * @throws IOException if there is an I/O error.
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
+        
+        //write transient paint arraylists
+        SerialUtils.writePaintList(this.paintList, stream);
+        SerialUtils.writePaintList(this.fillPaintList, stream);
+        SerialUtils.writePaintList(this.outlinePaintList, stream);
+        SerialUtils.writePaintList(this.itemLabelPaintList, stream);
+        SerialUtils.writePaintList(this.legendTextPaint, stream);
+        
         SerialUtils.writePaint(this.defaultPaint, stream);
         SerialUtils.writePaint(this.defaultFillPaint, stream);
         SerialUtils.writePaint(this.defaultOutlinePaint, stream);
@@ -3206,14 +3302,22 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
     /**
      * Provides serialization support.
      *
-     * @param stream  the input stream.
+     * @param stream the input stream.
      *
-     * @throws IOException  if there is an I/O error.
-     * @throws ClassNotFoundException  if there is a classpath problem.
+     * @throws IOException if there is an I/O error.
+     * @throws ClassNotFoundException if there is a classpath problem.
      */
     private void readObject(ObjectInputStream stream)
-        throws IOException, ClassNotFoundException {
+            throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
+        
+        //read transient arraylist paints
+        this.paintList = SerialUtils.readPaintList(stream);
+        this.fillPaintList = SerialUtils.readPaintList(stream);
+        this.outlinePaintList = SerialUtils.readPaintList(stream);
+        this.itemLabelPaintList = SerialUtils.readPaintList(stream);
+        this.legendTextPaint = SerialUtils.readPaintList(stream);
+        
         this.defaultPaint = SerialUtils.readPaint(stream);
         this.defaultFillPaint = SerialUtils.readPaint(stream);
         this.defaultOutlinePaint = SerialUtils.readPaint(stream);
@@ -3229,4 +3333,5 @@ public abstract class AbstractRenderer implements Cloneable, Serializable {
         this.listenerList = new EventListenerList();
     }
 
+    
 }

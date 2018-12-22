@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jfree.chart.LegendItem;
@@ -63,7 +64,7 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.util.BooleanList;
+//import org.jfree.chart.util.BooleanList;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.ShapeUtils;
@@ -90,7 +91,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      * A table of flags that control (per series) whether or not shapes are
      * filled.
      */
-    private BooleanList seriesShapesFilled;
+    private List<Boolean> seriesShapesFilled;
 
     /**
      * The default value returned by the getShapeFilled() method.
@@ -130,7 +131,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      * Constructs a new renderer.
      */
     public ScatterRenderer() {
-        this.seriesShapesFilled = new BooleanList();
+        this.seriesShapesFilled = new ArrayList<>();
         this.baseShapesFilled = true;
         this.useFillPaint = false;
         this.drawOutlines = false;
@@ -276,7 +277,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      * @return A boolean.
      */
     public boolean getSeriesShapesFilled(int series) {
-        Boolean flag = this.seriesShapesFilled.getBoolean(series);
+        Boolean flag = this.seriesShapesFilled.get(series);
         if (flag != null) {
             return flag.booleanValue();
         }
@@ -294,7 +295,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      * @param filled the flag.
      */
     public void setSeriesShapesFilled(int series, Boolean filled) {
-        this.seriesShapesFilled.setBoolean(series, filled);
+        this.seriesShapesFilled.set(series, filled);
         fireChangeEvent();
     }
 
@@ -306,7 +307,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      * @param filled the flag.
      */
     public void setSeriesShapesFilled(int series, boolean filled) {
-        this.seriesShapesFilled.setBoolean(series, Boolean.valueOf(filled));
+        this.seriesShapesFilled.set(series, Boolean.valueOf(filled));
         fireChangeEvent();
     }
 
@@ -563,7 +564,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
     public Object clone() throws CloneNotSupportedException {
         ScatterRenderer clone = (ScatterRenderer) super.clone();
         clone.seriesShapesFilled
-                = (BooleanList) this.seriesShapesFilled.clone();
+                = new ArrayList<>(this.seriesShapesFilled);
         return clone;
     }
 

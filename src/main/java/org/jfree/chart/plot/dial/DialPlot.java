@@ -53,6 +53,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,7 +62,7 @@ import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
-import org.jfree.chart.util.ObjectList;
+//import org.jfree.chart.util.ObjectList;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.Args;
 import org.jfree.data.general.DatasetChangeEvent;
@@ -97,25 +98,25 @@ public class DialPlot extends Plot implements DialLayerChangeListener {
     /**
      * The dataset(s) for the dial plot.
      */
-    private ObjectList datasets;
+    private List<Object> datasets;
 
     /**
      * The scale(s) for the dial plot.
      */
-    private ObjectList scales;
+    private List<Object> scales;
 
     /** Storage for keys that map datasets to scales. */
-    private ObjectList datasetToScaleMap;
+    private List<Object> datasetToScaleMap;
 
     /**
      * The drawing layers for the dial plot.
      */
-    private List layers;
+    private List<Object> layers;
 
     /**
      * The pointer(s) for the dial.
      */
-    private List pointers;
+    private List<Object> pointers;
 
     /**
      * The x-coordinate for the view window.
@@ -153,14 +154,14 @@ public class DialPlot extends Plot implements DialLayerChangeListener {
         this.background = null;
         this.cap = null;
         this.dialFrame = new ArcDialFrame();
-        this.datasets = new ObjectList();
+        this.datasets = new ArrayList<>();
         if (dataset != null) {
             setDataset(dataset);
         }
-        this.scales = new ObjectList();
-        this.datasetToScaleMap = new ObjectList();
-        this.layers = new java.util.ArrayList();
-        this.pointers = new java.util.ArrayList();
+        this.scales = new ArrayList<>();
+        this.datasetToScaleMap = new ArrayList<>();
+        this.layers = new ArrayList();
+        this.pointers = new ArrayList();
         this.viewX = 0.0;
         this.viewY = 0.0;
         this.viewW = 1.0;
