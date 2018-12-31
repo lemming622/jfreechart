@@ -480,7 +480,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setSeriesShapesFilled(int, Boolean)
      */
     public Boolean getSeriesShapesFilled(int series) {
-        return this.seriesShapesFilled.get(series);
+        return (series < this.seriesShapesFilled.size()) ? this.seriesShapesFilled.get(series) : null;
     }
 
     /**
@@ -506,6 +506,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesShapesFilled(int)
      */
     public void setSeriesShapesFilled(int series, Boolean flag) {
+        ArrayUtils.checkArraySize(seriesShapesFilled, series);
         this.seriesShapesFilled.set(series, flag);
         fireChangeEvent();
     }

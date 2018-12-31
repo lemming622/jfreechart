@@ -111,6 +111,7 @@ import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.util.ArrayUtils;
 //import org.jfree.chart.util.BooleanList;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.PublicCloneable;
@@ -251,7 +252,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #setSeriesLinesVisible(int, Boolean)
      */
     public Boolean getSeriesLinesVisible(int series) {
-        return this.seriesLinesVisible.get(series);
+        return (series < this.seriesLinesVisible.size()) ? this.seriesLinesVisible.get(series) : null;
     }
 
     /**
@@ -264,6 +265,8 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #getSeriesLinesVisible(int)
      */
     public void setSeriesLinesVisible(int series, Boolean flag) {
+        ArrayUtils.checkArraySize(this.seriesLinesVisible, series);
+        
         this.seriesLinesVisible.set(series, flag);
         fireChangeEvent();
     }
@@ -335,7 +338,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #setSeriesShapesVisible(int, Boolean)
      */
     public Boolean getSeriesShapesVisible(int series) {
-        return this.seriesShapesVisible.get(series);
+        return (series < this.seriesShapesVisible.size()) ? this.seriesShapesVisible.get(series) : null;
     }
 
     /**
@@ -361,6 +364,8 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #getSeriesShapesVisible(int)
      */
     public void setSeriesShapesVisible(int series, Boolean flag) {
+        ArrayUtils.checkArraySize(this.seriesShapesVisible, series);
+        
         this.seriesShapesVisible.set(series, flag);
         fireChangeEvent();
     }
@@ -470,7 +475,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @return A boolean.
      */
     public boolean getSeriesShapesFilled(int series) {
-        Boolean flag = this.seriesShapesFilled.get(series);
+        Boolean flag = ((series < this.seriesShapesFilled.size()) ? this.seriesShapesFilled.get(series) : null);
         if (flag != null) {
             return flag;
         }
@@ -487,6 +492,8 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer
      * @see #getSeriesShapesFilled(int)
      */
     public void setSeriesShapesFilled(int series, Boolean filled) {
+        ArrayUtils.checkArraySize(this.seriesShapesFilled, series);
+        
         this.seriesShapesFilled.set(series, filled);
         fireChangeEvent();
     }

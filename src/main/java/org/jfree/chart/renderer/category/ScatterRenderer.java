@@ -64,6 +64,7 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.util.ArrayUtils;
 //import org.jfree.chart.util.BooleanList;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.PublicCloneable;
@@ -277,7 +278,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      * @return A boolean.
      */
     public boolean getSeriesShapesFilled(int series) {
-        Boolean flag = this.seriesShapesFilled.get(series);
+        Boolean flag = ((series < this.seriesShapesFilled.size()) ? this.seriesShapesFilled.get(series) : null);
         if (flag != null) {
             return flag.booleanValue();
         }
@@ -295,6 +296,8 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      * @param filled the flag.
      */
     public void setSeriesShapesFilled(int series, Boolean filled) {
+        ArrayUtils.checkArraySize(this.seriesShapesFilled, series);
+        
         this.seriesShapesFilled.set(series, filled);
         fireChangeEvent();
     }
@@ -307,8 +310,7 @@ public class ScatterRenderer extends AbstractCategoryItemRenderer
      * @param filled the flag.
      */
     public void setSeriesShapesFilled(int series, boolean filled) {
-        this.seriesShapesFilled.set(series, Boolean.valueOf(filled));
-        fireChangeEvent();
+        setSeriesShapesFilled(series, Boolean.valueOf(filled));
     }
 
     /**

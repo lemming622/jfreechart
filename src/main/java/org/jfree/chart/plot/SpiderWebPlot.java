@@ -111,6 +111,7 @@ import org.jfree.chart.util.ObjectUtils;
 //import org.jfree.chart.util.PaintList;
 import org.jfree.chart.util.PaintUtils;
 import org.jfree.chart.util.Args;
+import org.jfree.chart.util.ArrayUtils;
 import org.jfree.chart.util.Rotation;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
@@ -686,12 +687,12 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         }
 
         // otherwise look up the paint list
-        Paint result = this.seriesPaintList.get(series);
+        Paint result = ((series < this.seriesPaintList.size()) ? this.seriesPaintList.get(series) : null);
         if (result == null) {
             DrawingSupplier supplier = getDrawingSupplier();
             if (supplier != null) {
                 Paint p = supplier.getNextPaint();
-                this.seriesPaintList.set(series, p);
+                setSeriesPaint(series, p);
                 result = p;
             }
             else {
@@ -712,6 +713,8 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #getSeriesPaint(int)
      */
     public void setSeriesPaint(int series, Paint paint) {
+        ArrayUtils.checkArraySize(this.seriesPaintList, series);
+        
         this.seriesPaintList.set(series, paint);
         fireChangeEvent();
     }
@@ -777,7 +780,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
             return this.seriesOutlinePaint;
         }
         // otherwise look up the paint list
-        Paint result = this.seriesOutlinePaintList.get(series);
+        Paint result = ((series < this.seriesOutlinePaintList.size()) ? this.seriesOutlinePaintList.get(series) : null);
         if (result == null) {
             result = this.baseSeriesOutlinePaint;
         }
@@ -792,6 +795,8 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @param paint  the paint ({@code null} permitted).
      */
     public void setSeriesOutlinePaint(int series, Paint paint) {
+        ArrayUtils.checkArraySize(this.seriesOutlinePaintList, series);
+        
         this.seriesOutlinePaintList.set(series, paint);
         fireChangeEvent();
     }
@@ -855,7 +860,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         }
 
         // otherwise look up the paint list
-        Stroke result = this.seriesOutlineStrokeList.get(series);
+        Stroke result = ((series < this.seriesOutlineStrokeList.size()) ? this.seriesOutlineStrokeList.get(series) : null);
         if (result == null) {
             result = this.baseSeriesOutlineStroke;
         }
@@ -871,6 +876,8 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @param stroke  the stroke ({@code null} permitted).
      */
     public void setSeriesOutlineStroke(int series, Stroke stroke) {
+        ArrayUtils.checkArraySize(this.seriesOutlineStrokeList, series);
+        
         this.seriesOutlineStrokeList.set(series, stroke);
         fireChangeEvent();
     }

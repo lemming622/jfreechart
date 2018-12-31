@@ -130,10 +130,7 @@ public class SerialUtils {
         ArrayList<Paint> output = new ArrayList<>(count);
         
         for(int i = 0; i < count; i++){
-            int index = stream.readInt();
-            if(index != -1){
-                output.add(index, readPaint(stream));
-            }
+            output.add(i, readPaint(stream));
         }
         
         return output;

@@ -71,6 +71,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.ui.GradientPaintTransformer;
 import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.util.ArrayUtils;
 //import org.jfree.chart.util.ObjectList;
 import org.jfree.data.category.CategoryDataset;
 
@@ -109,7 +110,7 @@ public class LayeredBarRenderer extends BarRenderer implements Serializable {
      */
     public double getSeriesBarWidth(int series) {
         double result = Double.NaN;
-        Number n = (Number) this.seriesBarWidthList.get(series);
+        Number n = (Number) ((series < this.seriesBarWidthList.size()) ? this.seriesBarWidthList.get(series) : null);
         if (n != null) {
             result = n.doubleValue();
         }
@@ -124,6 +125,8 @@ public class LayeredBarRenderer extends BarRenderer implements Serializable {
      *               the maximum).
      */
     public void setSeriesBarWidth(int series, double width) {
+        ArrayUtils.checkArraySize(this.seriesBarWidthList, series);
+        
         this.seriesBarWidthList.set(series, width);
     }
 

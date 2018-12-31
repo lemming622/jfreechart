@@ -109,6 +109,7 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.PaintUtils;
 import org.jfree.chart.util.Args;
+import org.jfree.chart.util.ArrayUtils;
 import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.chart.util.SerialUtils;
@@ -586,6 +587,9 @@ public class PolarPlot extends Plot implements ValueAxisPlot, Zoomable,
         if (existing != null) {
             existing.removeChangeListener(this);
         }
+        
+        ArrayUtils.checkArraySize(this.datasets, index);
+        
         this.datasets.set(index, dataset);
         if (dataset != null) {
             dataset.addChangeListener(this);
@@ -704,6 +708,8 @@ public class PolarPlot extends Plot implements ValueAxisPlot, Zoomable,
         if (existing != null) {
             existing.removeChangeListener(this);
         }
+        ArrayUtils.checkArraySize(this.renderers, index);
+        
         this.renderers.set(index, renderer);
         if (renderer != null) {
             renderer.setPlot(this);

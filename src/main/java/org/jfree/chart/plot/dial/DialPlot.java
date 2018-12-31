@@ -65,6 +65,7 @@ import org.jfree.chart.plot.PlotState;
 //import org.jfree.chart.util.ObjectList;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.Args;
+import org.jfree.chart.util.ArrayUtils;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.ValueDataset;
 
@@ -646,10 +647,13 @@ public class DialPlot extends Plot implements DialLayerChangeListener {
      */
     public void addScale(int index, DialScale scale) {
         Args.nullNotPermitted(scale, "scale");
-        DialScale existing = (DialScale) this.scales.get(index);
+        DialScale existing = (DialScale) getScale(index);
         if (existing != null) {
             removeLayer(existing);
         }
+        
+        ArrayUtils.checkArraySize(this.scales, index);
+        
         this.layers.add(scale);
         this.scales.set(index, scale);
         scale.addChangeListener(this);

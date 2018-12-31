@@ -101,6 +101,7 @@ import org.jfree.chart.urls.XYURLGenerator;
 //import org.jfree.chart.util.ObjectList;
 import org.jfree.chart.util.ObjectUtils;
 import org.jfree.chart.util.Args;
+import org.jfree.chart.util.ArrayUtils;
 import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
@@ -370,9 +371,9 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
      */
     public boolean isSeriesFilled(int series) {
         boolean result = false;
-        Boolean b = this.seriesFilled.get(series);
+        Boolean b = ((series < this.seriesFilled.size()) ? this.seriesFilled.get(series) : null);
         if (b != null) {
-            result = b.booleanValue();
+            result = b;
         }
         return result;
     }
@@ -384,7 +385,9 @@ public class DefaultPolarItemRenderer extends AbstractRenderer
      * @param filled  the flag.
      */
     public void setSeriesFilled(int series, boolean filled) {
-        this.seriesFilled.set(series, Boolean.valueOf(filled));
+        ArrayUtils.checkArraySize(this.seriesFilled, series);
+        
+        this.seriesFilled.set(series, filled);
     }
 
     /**
